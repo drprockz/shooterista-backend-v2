@@ -1,0 +1,17 @@
+datasource db {
+  provider = "mysql"
+  url      = env("AUTH_DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/.prisma/auth"
+}
+
+model User {
+  id        BigInt @id @default(autoincrement())
+  email     String @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
