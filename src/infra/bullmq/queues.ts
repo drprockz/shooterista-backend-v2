@@ -1,5 +1,4 @@
 import { Queue } from 'bullmq';
-import { createClient } from 'redis';
 
 const connection = { url: process.env.REDIS_URL };
 

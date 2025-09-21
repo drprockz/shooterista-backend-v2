@@ -1,18 +1,44 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import jwt from 'jsonwebtoken';
-import jwkToPem from 'jwk-to-pem';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { GqlExecutionContext } from '@nestjs/graphql';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  private pubKey: string = Buffer.from(process.env.JWT_PUBLIC_KEY_BASE64!, 'base64').toString('utf8');
-  canActivate(ctx: ExecutionContext) {
-    const req = ctx.switchToHttp().getRequest() || ctx.getArgByIndex(2)?.req; // works for REST/GraphQL
-    const token = (req.headers.authorization || '').replace('Bearer ', '');
-    if (!token) return false;
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const ctx = GqlExecutionContext.create(context);
+    const request = ctx.getContext().req || context.switchToHttp().getRequest();
+    
+    const token = this.extractTokenFromHeader(request);
+    if (!token) {
+      throw new UnauthorizedException('No token provided');
+    }
+
     try {
-      const payload = jwt.verify(token, this.pubKey, { algorithms: ['RS256'], issuer: process.env.JWT_ISS, audience: process.env.JWT_AUD });
-      (req as any).user = payload;
+      const payload = this.jwtService.verify(token, {
+        secret: this.configService.get<string>('app.JWT_SECRET'),
+        issuer: this.configService.get<string>('app.JWT_ISS'),
+        audience: this.configService.get<string>('app.JWT_AUD'),
+      });
+
+      if (payload.type !== 'access') {
+        throw new UnauthorizedException('Invalid token type');
+      }
+
+      request.user = { id: payload.sub, email: payload.email };
       return true;
-    } catch { return false; }
+    } catch {
+      throw new UnauthorizedException('Invalid token');
+    }
+  }
+
+  private extractTokenFromHeader(request: any): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
   }
 }

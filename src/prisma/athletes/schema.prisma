@@ -1,0 +1,283 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("ATHLETES_DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/.prisma/athletes"
+}
+
+model Athlete {
+  id          BigInt   @id @default(autoincrement())
+  tenantId    BigInt
+  userId      BigInt?  // Optional link to auth user
+  firstName   String   @db.VarChar(100)
+  lastName    String   @db.VarChar(100)
+  email       String?  @db.VarChar(255)
+  dateOfBirth DateTime?
+  gender      Gender?
+  country     String?  @db.VarChar(3) // ISO 3166-1 alpha-3
+  state       String?  @db.VarChar(100)
+  city        String?  @db.VarChar(100)
+  phone       String?  @db.VarChar(20)
+  
+  // Athletic Information
+  handedness     Handedness?
+  eyeDominance   EyeDominance?
+  discipline     String?      @db.VarChar(100)
+  classification String?      @db.VarChar(50)
+  
+  // Profile Information
+  profileImage   String?      @db.VarChar(500)
+  bio           String?      @db.Text
+  achievements  String?      @db.Text
+  
+  // Metadata
+  isActive      Boolean      @default(true)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  deletedAt     DateTime?
+  
+  // Relations
+  tenant        Tenant       @relation(fields: [tenantId], references: [id])
+  competitions  AthleteCompetition[]
+  scores        Score[]
+  memberships   Membership[]
+  
+  @@unique([tenantId, email])
+  @@index([tenantId, isActive])
+  @@index([tenantId, lastName, firstName])
+  @@map("athletes")
+}
+
+model Tenant {
+  id          BigInt   @id @default(autoincrement())
+  name        String   @db.VarChar(200)
+  slug        String   @unique @db.VarChar(100)
+  description String?  @db.Text
+  logo        String?  @db.VarChar(500)
+  website     String?  @db.VarChar(255)
+  
+  // Contact Information
+  email       String?  @db.VarChar(255)
+  phone       String?  @db.VarChar(20)
+  address     String?  @db.Text
+  
+  // Configuration
+  settings    Json?
+  timezone    String   @default("UTC") @db.VarChar(50)
+  currency    String   @default("USD") @db.VarChar(3)
+  
+  // Subscription
+  planType    PlanType @default(FREE)
+  planExpiry  DateTime?
+  
+  // Metadata
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  
+  // Relations
+  athletes    Athlete[]
+  competitions Competition[]
+  memberships Membership[]
+  
+  @@index([isActive])
+  @@map("tenants")
+}
+
+model Membership {
+  id        BigInt         @id @default(autoincrement())
+  tenantId  BigInt
+  athleteId BigInt
+  role      MembershipRole @default(MEMBER)
+  status    MembershipStatus @default(ACTIVE)
+  
+  // Metadata
+  joinedAt  DateTime       @default(now())
+  leftAt    DateTime?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  
+  // Relations
+  tenant    Tenant         @relation(fields: [tenantId], references: [id])
+  athlete   Athlete        @relation(fields: [athleteId], references: [id])
+  
+  @@unique([tenantId, athleteId])
+  @@index([tenantId, status])
+  @@map("memberships")
+}
+
+model Score {
+  id            BigInt   @id @default(autoincrement())
+  athleteId     BigInt
+  competitionId BigInt
+  round         Int
+  series        Int
+  shotNumber    Int
+  score         Decimal  @db.Decimal(4, 1) // e.g., 10.9
+  
+  // Shot Details
+  coordinates   Json?    // { x: number, y: number }
+  conditions    Json?    // Weather, wind, etc.
+  equipment     Json?    // Rifle, ammunition details
+  
+  // Metadata
+  recordedAt    DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  athlete       Athlete     @relation(fields: [athleteId], references: [id])
+  competition   Competition @relation(fields: [competitionId], references: [id])
+  
+  @@unique([competitionId, athleteId, round, series, shotNumber])
+  @@index([athleteId, competitionId])
+  @@index([competitionId, round, series])
+  @@map("scores")
+}
+
+model Competition {
+  id          BigInt   @id @default(autoincrement())
+  tenantId    BigInt
+  name        String   @db.VarChar(200)
+  description String?  @db.Text
+  
+  // Competition Details
+  type        CompetitionType
+  discipline  String   @db.VarChar(100)
+  format      String   @db.VarChar(100)
+  rounds      Int      @default(1)
+  seriesPerRound Int   @default(1)
+  shotsPerSeries Int   @default(10)
+  
+  // Scheduling
+  startDate   DateTime
+  endDate     DateTime
+  timezone    String   @db.VarChar(50)
+  
+  // Location
+  venue       String?  @db.VarChar(200)
+  address     String?  @db.Text
+  
+  // Configuration
+  settings    Json?
+  rules       String?  @db.Text
+  
+  // Status
+  status      CompetitionStatus @default(DRAFT)
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  
+  // Relations
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
+  athletes    AthleteCompetition[]
+  scores      Score[]
+  
+  @@index([tenantId, status])
+  @@index([startDate, endDate])
+  @@map("competitions")
+}
+
+model AthleteCompetition {
+  id            BigInt   @id @default(autoincrement())
+  athleteId     BigInt
+  competitionId BigInt
+  
+  // Registration
+  registeredAt  DateTime @default(now())
+  status        ParticipationStatus @default(REGISTERED)
+  
+  // Competition specific data
+  startNumber   Int?
+  category      String?  @db.VarChar(100)
+  division      String?  @db.VarChar(100)
+  
+  // Results
+  totalScore    Decimal? @db.Decimal(8, 1)
+  ranking       Int?
+  
+  // Metadata
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  athlete       Athlete     @relation(fields: [athleteId], references: [id])
+  competition   Competition @relation(fields: [competitionId], references: [id])
+  
+  @@unique([athleteId, competitionId])
+  @@index([competitionId, ranking])
+  @@map("athlete_competitions")
+}
+
+// Enums
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum Handedness {
+  RIGHT
+  LEFT
+  AMBIDEXTROUS
+}
+
+enum EyeDominance {
+  RIGHT
+  LEFT
+  CROSS_DOMINANT
+}
+
+enum PlanType {
+  FREE
+  BASIC
+  PREMIUM
+  ENTERPRISE
+}
+
+enum MembershipRole {
+  OWNER
+  ADMIN
+  COACH
+  MEMBER
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum CompetitionType {
+  INDIVIDUAL
+  TEAM
+  MIXED
+}
+
+enum CompetitionStatus {
+  DRAFT
+  PUBLISHED
+  REGISTRATION_OPEN
+  REGISTRATION_CLOSED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ParticipationStatus {
+  REGISTERED
+  CONFIRMED
+  CHECKED_IN
+  COMPETING
+  COMPLETED
+  WITHDRAWN
+  DISQUALIFIED
+}

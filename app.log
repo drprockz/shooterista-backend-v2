@@ -1,0 +1,214 @@
+
+> shooterista-backend@1.0.0 start:dev
+> nest start --watch
+
+
+ Info  Webpack is building your sources...
+
+webpack 5.97.1 compiled [1m[32msuccessfully[39m[22m in 423 ms
+Type-checking in progress...
+📁 Loading environment from: .env.development
+[Nest] 51431  - 09/21/2025, 12:15:54 AM     LOG [NestFactory] Starting Nest application...
+[Nest] 51431  - 09/21/2025, 12:15:54 AM     LOG [InstanceLoader] AppConfigModule dependencies initialized +11ms
+[Nest] 51431  - 09/21/2025, 12:15:54 AM     LOG [InstanceLoader] GqlModule dependencies initialized +0ms
+[Nest] 51431  - 09/21/2025, 12:15:54 AM     LOG [InstanceLoader] BullInfraModule dependencies initialized +1ms
+[Nest] 51431  - 09/21/2025, 12:15:54 AM     LOG [InstanceLoader] S3Module dependencies initialized +0ms
+[Nest] 51431  - 09/21/2025, 12:15:54 AM     LOG [InstanceLoader] ConfigHostModule dependencies initialized +0ms
+[Nest] 51431  - 09/21/2025, 12:15:54 AM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 51431  - 09/21/2025, 12:15:54 AM     LOG [InstanceLoader] ConfigModule dependencies initialized +5ms
+[Nest] 51431  - 09/21/2025, 12:15:54 AM     LOG [InstanceLoader] TerminusModule dependencies initialized +0ms
+[Nest] 51431  - 09/21/2025, 12:15:54 AM     LOG [InstanceLoader] AppModule dependencies initialized +6ms
+[Nest] 51431  - 09/21/2025, 12:15:54 AM     LOG [InstanceLoader] JwtModule dependencies initialized +3ms
+[Nest] 51431  - 09/21/2025, 12:15:54 AM     LOG [InstanceLoader] GraphQLSchemaBuilderModule dependencies initialized +0ms
+[Nest] 51431  - 09/21/2025, 12:15:54 AM     LOG [InstanceLoader] HealthModule dependencies initialized +1ms
+[Nest] 51431  - 09/21/2025, 12:15:54 AM     LOG [InstanceLoader] AuthModule dependencies initialized +0ms
+[Nest] 51431  - 09/21/2025, 12:15:54 AM     LOG [InstanceLoader] GraphQLModule dependencies initialized +0ms
+[Nest] 51431  - 09/21/2025, 12:15:54 AM     LOG [RoutesResolver] HealthController {/health}: +49ms
+[Nest] 51431  - 09/21/2025, 12:15:54 AM     LOG [RouterExplorer] Mapped {/health, GET} route +1ms
+[Nest] 51431  - 09/21/2025, 12:15:54 AM     LOG [RouterExplorer] Mapped {/health/ready, GET} route +0ms
+[Nest] 51431  - 09/21/2025, 12:15:54 AM     LOG [RouterExplorer] Mapped {/health/live, GET} route +0ms
+[Nest] 51431  - 09/21/2025, 12:15:54 AM     LOG [GraphQLModule] Mapped {/graphql, POST} route +41ms
+[2025-09-21 00:15:54.728 +0530] [32mINFO[39m (51431): [36m📚 Swagger documentation available at: http://localhost:5001/api/docs[39m
+[Nest] 51431  - 09/21/2025, 12:15:55 AM     LOG [NestApplication] Nest application successfully started +653ms
+[Nest] 51431  - 09/21/2025, 12:15:55 AM   ERROR [NestApplication] Error: listen EADDRINUSE: address already in use 0.0.0.0:5001 +3ms
+❌ Error starting server: Error: listen EADDRINUSE: address already in use 0.0.0.0:5001
+    at Server.setupListenHandle [as _listen2] (node:net:1937:16)
+    at listenInCluster (node:net:1994:12)
+    at node:net:2203:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'EADDRINUSE',
+  errno: -48,
+  syscall: 'listen',
+  address: '0.0.0.0',
+  port: 5001
+}
+No errors found.
+
+ Info  Webpack is building your sources...
+
+webpack 5.97.1 compiled [1m[32msuccessfully[39m[22m in 40 ms
+No errors found.
+📁 Loading environment from: .env.development
+[Nest] 54979  - 09/21/2025, 12:18:12 AM     LOG [NestFactory] Starting Nest application...
+[Nest] 54979  - 09/21/2025, 12:18:12 AM     LOG [InstanceLoader] AppConfigModule dependencies initialized +9ms
+[Nest] 54979  - 09/21/2025, 12:18:12 AM     LOG [InstanceLoader] GqlModule dependencies initialized +0ms
+[Nest] 54979  - 09/21/2025, 12:18:12 AM     LOG [InstanceLoader] BullInfraModule dependencies initialized +0ms
+[Nest] 54979  - 09/21/2025, 12:18:12 AM     LOG [InstanceLoader] S3Module dependencies initialized +0ms
+[Nest] 54979  - 09/21/2025, 12:18:12 AM     LOG [InstanceLoader] ConfigHostModule dependencies initialized +0ms
+[Nest] 54979  - 09/21/2025, 12:18:12 AM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 54979  - 09/21/2025, 12:18:12 AM     LOG [InstanceLoader] ConfigModule dependencies initialized +3ms
+[Nest] 54979  - 09/21/2025, 12:18:12 AM     LOG [InstanceLoader] TerminusModule dependencies initialized +0ms
+[Nest] 54979  - 09/21/2025, 12:18:12 AM     LOG [InstanceLoader] AppModule dependencies initialized +6ms
+[Nest] 54979  - 09/21/2025, 12:18:12 AM     LOG [InstanceLoader] JwtModule dependencies initialized +3ms
+[Nest] 54979  - 09/21/2025, 12:18:12 AM     LOG [InstanceLoader] GraphQLSchemaBuilderModule dependencies initialized +0ms
+[Nest] 54979  - 09/21/2025, 12:18:12 AM     LOG [InstanceLoader] HealthModule dependencies initialized +0ms
+[Nest] 54979  - 09/21/2025, 12:18:12 AM     LOG [InstanceLoader] AuthModule dependencies initialized +0ms
+[Nest] 54979  - 09/21/2025, 12:18:12 AM     LOG [InstanceLoader] GraphQLModule dependencies initialized +0ms
+[Nest] 54979  - 09/21/2025, 12:18:12 AM     LOG [RoutesResolver] HealthController {/health}: +38ms
+[Nest] 54979  - 09/21/2025, 12:18:12 AM     LOG [RouterExplorer] Mapped {/health, GET} route +1ms
+[Nest] 54979  - 09/21/2025, 12:18:12 AM     LOG [RouterExplorer] Mapped {/health/ready, GET} route +0ms
+[Nest] 54979  - 09/21/2025, 12:18:12 AM     LOG [RouterExplorer] Mapped {/health/live, GET} route +0ms
+[Nest] 54979  - 09/21/2025, 12:18:12 AM     LOG [GraphQLModule] Mapped {/graphql, POST} route +32ms
+[2025-09-21 00:18:12.935 +0530] [32mINFO[39m (54979): [36m📚 Swagger documentation available at: http://localhost:5001/api/docs[39m
+[Nest] 54979  - 09/21/2025, 12:18:13 AM     LOG [NestApplication] Nest application successfully started +587ms
+[Nest] 54979  - 09/21/2025, 12:18:13 AM   ERROR [NestApplication] Error: listen EADDRINUSE: address already in use 0.0.0.0:5001 +8ms
+❌ Error starting server: Error: listen EADDRINUSE: address already in use 0.0.0.0:5001
+    at Server.setupListenHandle [as _listen2] (node:net:1937:16)
+    at listenInCluster (node:net:1994:12)
+    at node:net:2203:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'EADDRINUSE',
+  errno: -48,
+  syscall: 'listen',
+  address: '0.0.0.0',
+  port: 5001
+}
+
+ Info  Webpack is building your sources...
+
+webpack 5.97.1 compiled [1m[32msuccessfully[39m[22m in 37 ms
+No errors found.
+📁 Loading environment from: .env.development
+[Nest] 59436  - 09/21/2025, 12:21:10 AM     LOG [NestFactory] Starting Nest application...
+[Nest] 59436  - 09/21/2025, 12:21:10 AM     LOG [InstanceLoader] AppConfigModule dependencies initialized +11ms
+[Nest] 59436  - 09/21/2025, 12:21:10 AM     LOG [InstanceLoader] GqlModule dependencies initialized +0ms
+[Nest] 59436  - 09/21/2025, 12:21:10 AM     LOG [InstanceLoader] BullInfraModule dependencies initialized +0ms
+[Nest] 59436  - 09/21/2025, 12:21:10 AM     LOG [InstanceLoader] S3Module dependencies initialized +0ms
+[Nest] 59436  - 09/21/2025, 12:21:10 AM     LOG [InstanceLoader] ConfigHostModule dependencies initialized +0ms
+[Nest] 59436  - 09/21/2025, 12:21:10 AM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 59436  - 09/21/2025, 12:21:10 AM     LOG [InstanceLoader] ConfigModule dependencies initialized +4ms
+[Nest] 59436  - 09/21/2025, 12:21:10 AM     LOG [InstanceLoader] TerminusModule dependencies initialized +0ms
+[Nest] 59436  - 09/21/2025, 12:21:10 AM     LOG [InstanceLoader] AppModule dependencies initialized +6ms
+[Nest] 59436  - 09/21/2025, 12:21:10 AM     LOG [InstanceLoader] JwtModule dependencies initialized +4ms
+[Nest] 59436  - 09/21/2025, 12:21:10 AM     LOG [InstanceLoader] GraphQLSchemaBuilderModule dependencies initialized +0ms
+[Nest] 59436  - 09/21/2025, 12:21:10 AM     LOG [InstanceLoader] HealthModule dependencies initialized +1ms
+[Nest] 59436  - 09/21/2025, 12:21:10 AM     LOG [InstanceLoader] AuthModule dependencies initialized +0ms
+[Nest] 59436  - 09/21/2025, 12:21:10 AM     LOG [InstanceLoader] GraphQLModule dependencies initialized +0ms
+[Nest] 59436  - 09/21/2025, 12:21:10 AM     LOG [RoutesResolver] HealthController {/health}: +56ms
+[Nest] 59436  - 09/21/2025, 12:21:10 AM     LOG [RouterExplorer] Mapped {/health, GET} route +1ms
+[Nest] 59436  - 09/21/2025, 12:21:10 AM     LOG [RouterExplorer] Mapped {/health/ready, GET} route +0ms
+[Nest] 59436  - 09/21/2025, 12:21:10 AM     LOG [RouterExplorer] Mapped {/health/live, GET} route +1ms
+[Nest] 59436  - 09/21/2025, 12:21:10 AM     LOG [GraphQLModule] Mapped {/graphql, POST} route +36ms
+[2025-09-21 00:21:10.423 +0530] [32mINFO[39m (59436): [36m📚 Swagger documentation available at: http://localhost:5001/api/docs[39m
+[Nest] 59436  - 09/21/2025, 12:21:11 AM     LOG [NestApplication] Nest application successfully started +717ms
+[Nest] 59436  - 09/21/2025, 12:21:11 AM   ERROR [NestApplication] Error: listen EADDRINUSE: address already in use 0.0.0.0:5001 +8ms
+❌ Error starting server: Error: listen EADDRINUSE: address already in use 0.0.0.0:5001
+    at Server.setupListenHandle [as _listen2] (node:net:1937:16)
+    at listenInCluster (node:net:1994:12)
+    at node:net:2203:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'EADDRINUSE',
+  errno: -48,
+  syscall: 'listen',
+  address: '0.0.0.0',
+  port: 5001
+}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     [2025-09-21 00:16:04.714 +0530] [32mINFO[39m (50896): [36mrequest completed[39m
+    [35mreq[39m: {
+      "method": "POST",
+      "url": "/graphql",
+      "headers": {
+        "host": "localhost:5001",
+        "user-agent": "curl/8.7.1",
+        "content-length": "33"
+      }
+    }
+    [35mtenant[39m: null
+    [35muserAgent[39m: "curl/8.7.1"
+    [35mres[39m: {
+      "statusCode": 200,
+      "headers": {}
+    }
+    [35mresponseTime[39m: 8
+GraphQL Error: {
+  message: 'GraphQL introspection is not allowed by Apollo Server, but the query contained __schema or __type. To enable introspection, pass introspection: true to ApolloServer in production',
+  locations: [ { line: 1, column: 28 } ],
+  extensions: {
+    validationErrorCode: 'INTROSPECTION_DISABLED',
+    code: 'GRAPHQL_VALIDATION_FAILED',
+    stacktrace: [
+      'GraphQLError: GraphQL introspection is not allowed by Apollo Server, but the query contained __schema or __type. To enable introspection, pass introspection: true to ApolloServer in production',
+      '    at Object.Field (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/@apollo/server/src/validationRules/NoIntrospection.ts:14:9)',
+      '    at Object.enter (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/graphql/language/visitor.js:298:32)',
+      '    at Object.enter (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/graphql/utilities/TypeInfo.js:391:27)',
+      '    at visit (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/graphql/language/visitor.js:194:21)',
+      '    at validate (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/graphql/validation/validate.js:91:24)',
+      '    at processGraphQLRequest (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/@apollo/server/src/requestPipeline.ts:246:38)',
+      '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      '    at async internalExecuteOperation (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/@apollo/server/src/ApolloServer.ts:1334:12)',
+      '    at async runHttpQuery (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/@apollo/server/src/runHttpQuery.ts:232:27)',
+      '    at async runPotentiallyBatchedHttpQuery (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/@apollo/server/src/httpBatching.ts:85:12)'
+    ]
+  }
+}
+[2025-09-21 00:16:09.931 +0530] [32mINFO[39m (50896): [36mrequest completed[39m
+    [35mreq[39m: {
+      "method": "POST",
+      "url": "/graphql",
+      "headers": {
+        "host": "localhost:5001",
+        "user-agent": "curl/8.7.1",
+        "content-length": "73"
+      }
+    }
+    [35mtenant[39m: null
+    [35muserAgent[39m: "curl/8.7.1"
+    [35mres[39m: {
+      "statusCode": 400,
+      "headers": {}
+    }
+    [35mresponseTime[39m: 9
+[2025-09-21 00:16:18.009 +0530] [32mINFO[39m (50896): [36mrequest completed[39m
+    [35mreq[39m: {
+      "method": "POST",
+      "url": "/graphql",
+      "headers": {
+        "host": "localhost:5001",
+        "user-agent": "curl/8.7.1",
+        "content-length": "50"
+      }
+    }
+    [35mtenant[39m: null
+    [35muserAgent[39m: "curl/8.7.1"
+    [35mres[39m: {
+      "statusCode": 200,
+      "headers": {}
+    }
+    [35mresponseTime[39m: 1
+[2025-09-21 00:17:54.266 +0530] [32mINFO[39m (50896): [36mrequest completed[39m
+    [35mreq[39m: {
+      "method": "POST",
+      "url": "/graphql",
+      "headers": {
+        "host": "localhost:5001",
+        "user-agent": "Apollo-Studio-Sandbox/1.0",
+        "content-length": "47"
+      }
+    }
+    [35mtenant[39m: null
+    [35muserAgent[39m: "Apollo-Studio-Sandbox/1.0"
+    [35mres[39m: {
+      "statusCode": 200,
+      "headers": {}
+    }
+    [35mresponseTime[39m: 1

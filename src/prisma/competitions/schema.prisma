@@ -1,0 +1,373 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("COMPETITIONS_DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/.prisma/competitions"
+}
+
+model Competition {
+  id          BigInt   @id @default(autoincrement())
+  tenantId    BigInt
+  name        String   @db.VarChar(200)
+  description String?  @db.Text
+  
+  // Competition Details
+  type        CompetitionType
+  discipline  String   @db.VarChar(100)
+  format      String   @db.VarChar(100)
+  roundCount  Int      @default(1)
+  seriesPerRound Int   @default(1)
+  shotsPerSeries Int   @default(10)
+  
+  // Scheduling
+  startDate   DateTime
+  endDate     DateTime
+  timezone    String   @db.VarChar(50)
+  
+  // Location
+  venue       String?  @db.VarChar(200)
+  address     String?  @db.Text
+  coordinates Json?    // { lat: number, lng: number }
+  
+  // Configuration
+  settings    Json?
+  rules       String?  @db.Text
+  scoringRules Json?   // Custom scoring configurations
+  
+  // Status and Visibility
+  status      CompetitionStatus @default(DRAFT)
+  visibility  CompetitionVisibility @default(PRIVATE)
+  
+  // Registration
+  registrationOpen   DateTime?
+  registrationClose  DateTime?
+  maxParticipants    Int?
+  registrationFee    Decimal? @db.Decimal(10, 2)
+  
+  // Awards and Prizes
+  awards      Json?    // Prize structure
+  
+  // Weather and Conditions
+  weatherData Json?    // Historical weather data
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  
+  // Relations
+  rounds      Round[]
+  participants CompetitionParticipant[]
+  results     CompetitionResult[]
+  events      CompetitionEvent[]
+  
+  @@index([tenantId, status])
+  @@index([startDate, endDate])
+  @@index([discipline, status])
+  @@map("competitions")
+}
+
+model Round {
+  id            BigInt   @id @default(autoincrement())
+  competitionId BigInt
+  roundNumber   Int
+  name          String?  @db.VarChar(100)
+  
+  // Round Configuration
+  seriesCount   Int      @default(1)
+  shotsPerSeries Int     @default(10)
+  timeLimit     Int?     // in minutes
+  
+  // Scheduling
+  startTime     DateTime?
+  endTime       DateTime?
+  
+  // Status
+  status        RoundStatus @default(PENDING)
+  
+  // Metadata
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  competition   Competition @relation(fields: [competitionId], references: [id], onDelete: Cascade)
+  series        Series[]
+  
+  @@unique([competitionId, roundNumber])
+  @@index([competitionId, status])
+  @@map("rounds")
+}
+
+model Series {
+  id          BigInt   @id @default(autoincrement())
+  roundId     BigInt
+  seriesNumber Int
+  name        String?  @db.VarChar(100)
+  
+  // Series Configuration
+  shotCount   Int      @default(10)
+  timeLimit   Int?     // in minutes
+  
+  // Conditions
+  conditions  Json?    // Weather, wind, lighting
+  
+  // Status
+  status      SeriesStatus @default(PENDING)
+  
+  // Timing
+  startTime   DateTime?
+  endTime     DateTime?
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  round       Round    @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  shots       Shot[]
+  
+  @@unique([roundId, seriesNumber])
+  @@index([roundId, status])
+  @@map("series")
+}
+
+model Shot {
+  id          BigInt   @id @default(autoincrement())
+  seriesId    BigInt
+  participantId BigInt
+  shotNumber  Int
+  
+  // Score
+  score       Decimal  @db.Decimal(4, 1) // e.g., 10.9
+  
+  // Shot Details
+  coordinates Json?    // { x: number, y: number }
+  distance    Decimal? @db.Decimal(6, 2) // Distance from center
+  angle       Decimal? @db.Decimal(6, 2) // Angle from 12 o'clock
+  
+  // Timing
+  shotTime    DateTime?
+  timeToShot  Int?     // Milliseconds from start of series
+  
+  // Conditions
+  conditions  Json?    // Wind, temperature, etc.
+  
+  // Equipment
+  equipment   Json?    // Rifle, ammunition, etc.
+  
+  // Validation
+  isValid     Boolean  @default(true)
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  series      Series   @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+  participant CompetitionParticipant @relation(fields: [participantId], references: [id])
+  
+  @@unique([seriesId, participantId, shotNumber])
+  @@index([participantId, seriesId])
+  @@map("shots")
+}
+
+model CompetitionParticipant {
+  id            BigInt   @id @default(autoincrement())
+  competitionId BigInt
+  athleteId     BigInt   // References athlete from athletes DB
+  
+  // Registration
+  registeredAt  DateTime @default(now())
+  status        ParticipationStatus @default(REGISTERED)
+  
+  // Competition specific data
+  startNumber   Int?
+  category      String?  @db.VarChar(100)
+  division      String?  @db.VarChar(100)
+  lane          Int?
+  
+  // Equipment Declaration
+  equipment     Json?    // Declared equipment for the competition
+  
+  // Payment
+  paymentStatus PaymentStatus @default(PENDING)
+  paymentAmount Decimal? @db.Decimal(10, 2)
+  
+  // Emergency Contact
+  emergencyContact Json? // { name, phone, relationship }
+  
+  // Metadata
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  competition   Competition @relation(fields: [competitionId], references: [id])
+  shots         Shot[]
+  results       CompetitionResult[]
+  
+  @@unique([competitionId, athleteId])
+  @@unique([competitionId, startNumber])
+  @@index([competitionId, status])
+  @@index([athleteId])
+  @@map("competition_participants")
+}
+
+model CompetitionResult {
+  id            BigInt   @id @default(autoincrement())
+  competitionId BigInt
+  participantId BigInt
+  
+  // Scores
+  totalScore    Decimal  @db.Decimal(8, 1)
+  roundScores   Json?    // Array of scores per round
+  seriesScores  Json?    // Detailed series breakdown
+  
+  // Rankings
+  overallRank   Int?
+  categoryRank  Int?
+  divisionRank  Int?
+  
+  // Statistics
+  averageScore  Decimal? @db.Decimal(4, 1)
+  highestSeries Decimal? @db.Decimal(4, 1)
+  centerShots   Int?     // Number of 10.9+ shots
+  
+  // Performance Metrics
+  consistency   Decimal? @db.Decimal(4, 3) // Standard deviation
+  improvement   Decimal? @db.Decimal(4, 1) // Compared to previous
+  
+  // Awards
+  awards        Json?    // Array of awards won
+  
+  // Metadata
+  calculatedAt  DateTime @default(now())
+  isOfficial    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  competition   Competition @relation(fields: [competitionId], references: [id])
+  participant   CompetitionParticipant @relation(fields: [participantId], references: [id])
+  
+  @@unique([competitionId, participantId])
+  @@index([competitionId, overallRank])
+  @@index([competitionId, categoryRank])
+  @@map("competition_results")
+}
+
+model CompetitionEvent {
+  id            BigInt   @id @default(autoincrement())
+  competitionId BigInt
+  type          EventType
+  title         String   @db.VarChar(200)
+  description   String?  @db.Text
+  
+  // Timing
+  scheduledAt   DateTime
+  startedAt     DateTime?
+  completedAt   DateTime?
+  
+  // Data
+  eventData     Json?    // Event-specific data
+  
+  // Status
+  status        EventStatus @default(SCHEDULED)
+  
+  // Metadata
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  competition   Competition @relation(fields: [competitionId], references: [id])
+  
+  @@index([competitionId, scheduledAt])
+  @@index([type, status])
+  @@map("competition_events")
+}
+
+// Enums
+enum CompetitionType {
+  INDIVIDUAL
+  TEAM
+  MIXED
+  QUALIFICATION
+  FINAL
+}
+
+enum CompetitionStatus {
+  DRAFT
+  PUBLISHED
+  REGISTRATION_OPEN
+  REGISTRATION_CLOSED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  POSTPONED
+}
+
+enum CompetitionVisibility {
+  PRIVATE
+  PUBLIC
+  INVITE_ONLY
+}
+
+enum RoundStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum SeriesStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ParticipationStatus {
+  REGISTERED
+  CONFIRMED
+  CHECKED_IN
+  COMPETING
+  COMPLETED
+  WITHDRAWN
+  DISQUALIFIED
+  NO_SHOW
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  REFUNDED
+  WAIVED
+  OVERDUE
+}
+
+enum EventType {
+  REGISTRATION_OPEN
+  REGISTRATION_CLOSE
+  TECHNICAL_MEETING
+  EQUIPMENT_CHECK
+  PRACTICE_START
+  PRACTICE_END
+  COMPETITION_START
+  ROUND_START
+  ROUND_END
+  SERIES_START
+  SERIES_END
+  BREAK
+  AWARDS_CEREMONY
+  COMPETITION_END
+}
+
+enum EventStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  POSTPONED
+}
