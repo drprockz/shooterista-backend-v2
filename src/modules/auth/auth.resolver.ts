@@ -18,11 +18,11 @@ import {
   MfaDisableInput,
   SessionRevokeInput,
   AuditLogsInput,
-  PermissionCheckInput,
-  RoleAssignmentInput,
-  RoleRemovalInput,
   UserUpdateInput,
   SessionListInput,
+  OTPVerificationInput,
+  ProfileCompletionInput,
+  ConsentInput,
 } from './dto/auth.input';
 import { 
   AuthPayload, 
@@ -33,7 +33,11 @@ import {
   EmailVerificationResponse,
   SessionListResponse,
   AuditLogResponse,
-  PermissionCheckResponse,
+  OTPResponse,
+  ProfileCompletionResponse,
+  ConsentResponse,
+  HealthMetrics,
+  SecurityStatus,
 } from './dto/auth.types';
 
 @Resolver()
@@ -54,17 +58,43 @@ export class AuthResolver {
   @Mutation(() => AuthPayload)
   async register(
     @Args('input') input: CreateUserInput,
-    @Context('req') req: any,
+    @Context() context: any,
   ): Promise<AuthPayload> {
+    const req = context.req;
     return this.authService.register(input, req.ip, req.headers['user-agent']);
   }
 
   @Mutation(() => AuthPayload)
   async login(
     @Args('input') input: LoginInput,
-    @Context('req') req: any,
+    @Context() context: any,
   ): Promise<AuthPayload> {
-    return this.authService.login(input, req.ip, req.headers['user-agent']);
+    const req = context.req;
+    const res = context.res;
+    
+    console.log('🔍 GraphQL Login mutation called:', {
+      email: input.email,
+      tenantId: input.tenantId,
+      ip: req.ip,
+      userAgent: req.headers['user-agent']?.substring(0, 50) + '...',
+      headers: {
+        'content-type': req.headers['content-type'],
+        'origin': req.headers['origin'],
+        'x-tenant-id': req.headers['x-tenant-id']
+      }
+    });
+    
+    const result = await this.authService.login(input, req.ip, req.headers['user-agent'], res);
+    
+    console.log('🔍 GraphQL Login result:', {
+      hasUser: !!result.user,
+      hasAccessToken: !!result.accessToken,
+      hasRefreshToken: !!result.refreshToken,
+      userId: result.user?.id,
+      sessionId: result.sessionId
+    });
+    
+    return result;
   }
 
   @Mutation(() => AuthPayload)
@@ -205,34 +235,8 @@ export class AuthResolver {
     return this.authService.revokeSession(input, req.user.id, req.ip, req.headers['user-agent']);
   }
 
-  // Permission Management
-  @Query(() => PermissionCheckResponse)
-  @UseGuards(AuthGuard)
-  async checkPermission(
-    @Args('input') input: PermissionCheckInput,
-    @Context('req') req: any,
-  ): Promise<PermissionCheckResponse> {
-    return this.authService.checkPermission(input, req.user.id);
-  }
-
-  // Role Management (Admin only)
-  @Mutation(() => Boolean)
-  @UseGuards(AuthGuard)
-  async assignRole(
-    @Args('input') input: RoleAssignmentInput,
-    @Context('req') req: any,
-  ): Promise<boolean> {
-    return this.authService.assignRole(input, req.user.id, req.ip, req.headers['user-agent']);
-  }
-
-  @Mutation(() => Boolean)
-  @UseGuards(AuthGuard)
-  async removeRole(
-    @Args('input') input: RoleRemovalInput,
-    @Context('req') req: any,
-  ): Promise<boolean> {
-    return this.authService.removeRole(input, req.user.id, req.ip, req.headers['user-agent']);
-  }
+  // Permission and Role Management - TEMPORARILY DISABLED
+  // These methods have been removed to simplify the system
 
   // User Management
   @Mutation(() => User)
@@ -252,5 +256,142 @@ export class AuthResolver {
     @Context('req') req: any,
   ): Promise<AuditLogResponse> {
     return this.authService.getAuditLogs(input, req.user.id);
+  }
+
+  // Enhanced Authentication Features
+
+  // OTP Verification
+  @Mutation(() => OTPResponse)
+  async verifyOTP(
+    @Args('input') input: OTPVerificationInput,
+    @Context('req') req: any,
+  ): Promise<OTPResponse> {
+    return this.authService.verifyOTP(input, req.ip, req.headers['user-agent']);
+  }
+
+  @Mutation(() => OTPResponse)
+  async resendOTP(
+    @Args('email') email: string,
+    @Context('req') req: any,
+  ): Promise<OTPResponse> {
+    const tenantId = req.headers['x-tenant-id'] || req.user?.tenantId;
+    return this.authService.resendOTP(email, req.ip, req.headers['user-agent'], tenantId);
+  }
+
+  // Profile Completion - temporarily disabled
+  // @Query(() => ProfileCompletionResponse)
+  // @UseGuards(AuthGuard)
+  // async checkProfileCompletion(@Context('req') req: any): Promise<ProfileCompletionResponse> {
+  //   return this.authService.checkProfileCompletion(req.user.id);
+  // }
+
+  // @Mutation(() => ProfileCompletionResponse)
+  // @UseGuards(AuthGuard)
+  // async updateProfile(
+  //   @Args('input') input: ProfileCompletionInput,
+  //   @Context('req') req: any,
+  // ): Promise<ProfileCompletionResponse> {
+  //   return this.authService.updateProfile(req.user.id, input);
+  // }
+
+  // @Query(() => Boolean)
+  // @UseGuards(AuthGuard)
+  // async canAccessModule(
+  //   @Args('moduleName') moduleName: string,
+  //   @Context('req') req: any,
+  // ): Promise<boolean> {
+  //   return this.authService.canAccessModule(req.user.id, moduleName);
+  // }
+
+  // Consent Management - temporarily disabled
+  // @Query(() => Boolean)
+  // @UseGuards(AuthGuard)
+  // async checkConsent(@Context('req') req: any): Promise<boolean> {
+  //   return this.authService.checkConsent(req.user.id);
+  // }
+
+  // @Mutation(() => ConsentResponse)
+  // @UseGuards(AuthGuard)
+  // async recordConsent(
+  //   @Args('input') input: ConsentInput,
+  //   @Context('req') req: any,
+  // ): Promise<ConsentResponse> {
+  //   return this.authService.recordConsent(req.user.id, input, req.ip, req.headers['user-agent']);
+  // }
+
+  // @Query(() => Object)
+  // async getConsentRequirements(): Promise<any> {
+  //   return this.authService.getConsentRequirements();
+  // }
+
+  // Security and Health - temporarily disabled
+  // @Query(() => HealthMetrics)
+  // @UseGuards(AuthGuard)
+  // async getSecurityMetrics(): Promise<HealthMetrics> {
+  //   return this.authService.getSecurityMetrics();
+  // }
+
+  // @Query(() => SecurityStatus)
+  // @UseGuards(AuthGuard)
+  // async performSecurityCheck(): Promise<SecurityStatus> {
+  //   return this.authService.performSecurityCheck();
+  // }
+
+  // @Query(() => [String])
+  // @UseGuards(AuthGuard)
+  // async getSecurityRecommendations(): Promise<string[]> {
+  //   return this.authService.getSecurityRecommendations();
+  // }
+
+  // @Query(() => Object)
+  // async healthCheck(): Promise<any> {
+  //   return this.authService.healthCheck();
+  // }
+
+  // Enhanced Email Verification
+  @Mutation(() => Boolean)
+  async verifyEmailWithOTP(
+    @Args('input') input: OTPVerificationInput,
+    @Context('req') req: any,
+  ): Promise<boolean> {
+    return this.authService.verifyEmailWithOTP(input, req.ip, req.headers['user-agent']);
+  }
+
+  // Session Management Enhancement
+  @Query(() => String)
+  @UseGuards(AuthGuard)
+  async getSessionInfo(
+    @Args('sessionId') sessionId: string,
+    @Context('req') req: any,
+  ): Promise<string> {
+    const result = await this.authService.getSessionInfo(sessionId);
+    return JSON.stringify(result);
+  }
+
+  // Cleanup (Admin only)
+  // @Mutation(() => Boolean)
+  // @UseGuards(AuthGuard)
+  // async cleanupExpiredData(@Context('req') req: any): Promise<boolean> {
+  //   await this.authService.cleanupExpiredData();
+  //   return true;
+  // }
+
+  // Development-only test email mutation
+  @Mutation(() => String)
+  async sendTestEmail(
+    @Args('to') to: string,
+    @Context('req') req: any,
+  ): Promise<string> {
+    // Only allow in development
+    if (process.env.NODE_ENV !== 'development') {
+      throw new Error('Test email only available in development');
+    }
+
+    const tenantId = req.headers['x-tenant-id'] || req.user?.tenantId;
+    const result = await this.authService.sendTestEmail(to, tenantId);
+    
+    return result.success 
+      ? `Test email sent successfully to ${to}. MessageId: ${result.messageId}`
+      : `Test email failed: ${result.error}`;
   }
 }

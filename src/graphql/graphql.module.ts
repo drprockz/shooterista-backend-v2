@@ -8,7 +8,6 @@ import { CsrfInterceptor } from '../common/interceptors/csrf.interceptor';
 import { GraphQLContextService } from '../common/context/graphql-context';
 import { AuthModule } from '../modules/auth/auth.module';
 import { AuthResolver } from '../modules/auth/auth.resolver';
-import { RbacResolver } from '../modules/auth/rbac.resolver';
 import { TestResolver } from '../test-resolver';
 
 @Module({
@@ -57,7 +56,7 @@ import { TestResolver } from '../test-resolver';
             },
           } as any,
         ] : [],
-        context: ({ request }) => ({ req: request }),
+        context: ({ request, reply }) => ({ req: request, res: reply }),
         csrfPrevention: configService.get<string>('app.NODE_ENV') === 'production',
         cache: 'bounded',
         // Fastify-specific optimizations
@@ -86,7 +85,10 @@ import { TestResolver } from '../test-resolver';
         },
         // Security headers
         cors: {
-          origin: configService.get<string>('app.CORS_ORIGIN')?.split(',') || ['http://localhost:3000'],
+          origin: (() => {
+            const corsOrigin = configService.get<string>('app.CORS_ORIGINS');
+            return corsOrigin ? corsOrigin.split(',').map(origin => origin.trim()) : ['http://localhost:3000'];
+          })(),
           credentials: true,
           methods: ['GET', 'POST', 'OPTIONS'],
           allowedHeaders: [
@@ -107,7 +109,6 @@ import { TestResolver } from '../test-resolver';
     GraphQLContextService,
     CsrfInterceptor,
     AuthResolver,
-    RbacResolver,
     TestResolver,
   ],
   exports: [GraphQLContextService],

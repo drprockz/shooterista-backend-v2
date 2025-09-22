@@ -12,11 +12,26 @@ export class PrismaAuthService extends AuthPrismaClient implements OnModuleInit 
           url: configService.get<string>('app.AUTH_DB_URL'),
         },
       },
+      log: ['error', 'warn'],
     });
   }
 
   async onModuleInit() {
-    await this.$connect();
+    try {
+      await this.$connect();
+      console.log('✅ Auth database connected successfully');
+    } catch (error) {
+      console.error('❌ Failed to connect to auth database:', error.message);
+      // Retry connection after a delay
+      setTimeout(async () => {
+        try {
+          await this.$connect();
+          console.log('✅ Auth database reconnected successfully');
+        } catch (retryError) {
+          console.error('❌ Auth database reconnection failed:', retryError.message);
+        }
+      }, 5000);
+    }
   }
 
   async onModuleDestroy() {
@@ -32,19 +47,7 @@ export class PrismaAuthService extends AuthPrismaClient implements OnModuleInit 
         isActive: true,
       },
       include: {
-        userRoles: {
-          include: {
-            role: {
-              include: {
-                rolePermissions: {
-                  include: {
-                    permission: true,
-                  },
-                },
-              },
-            },
-          },
-        },
+        // userRoles temporarily disabled
       },
     });
   }
@@ -57,19 +60,7 @@ export class PrismaAuthService extends AuthPrismaClient implements OnModuleInit 
         isActive: true,
       },
       include: {
-        userRoles: {
-          include: {
-            role: {
-              include: {
-                rolePermissions: {
-                  include: {
-                    permission: true,
-                  },
-                },
-              },
-            },
-          },
-        },
+        // userRoles temporarily disabled
       },
     });
   }
@@ -80,26 +71,16 @@ export class PrismaAuthService extends AuthPrismaClient implements OnModuleInit 
     firstName?: string; 
     lastName?: string; 
     tenantId?: string;
+    userType?: string;
   }) {
     return this.user.create({
       data: {
         ...data,
+        userType: (data.userType as any) || 'ATHLETE', // Default to ATHLETE if not specified
         isActive: true, // Users are active by default, email verification is separate
       },
       include: {
-        userRoles: {
-          include: {
-            role: {
-              include: {
-                rolePermissions: {
-                  include: {
-                    permission: true,
-                  },
-                },
-              },
-            },
-          },
-        },
+        // userRoles temporarily disabled
       },
     });
   }
@@ -119,19 +100,7 @@ export class PrismaAuthService extends AuthPrismaClient implements OnModuleInit 
       where: { id },
       data,
       include: {
-        userRoles: {
-          include: {
-            role: {
-              include: {
-                rolePermissions: {
-                  include: {
-                    permission: true,
-                  },
-                },
-              },
-            },
-          },
-        },
+        // userRoles temporarily disabled
       },
     });
   }
@@ -209,19 +178,7 @@ export class PrismaAuthService extends AuthPrismaClient implements OnModuleInit 
       include: {
         user: {
           include: {
-            userRoles: {
-              include: {
-                role: {
-                  include: {
-                    rolePermissions: {
-                      include: {
-                        permission: true,
-                      },
-                    },
-                  },
-                },
-              },
-            },
+            // userRoles temporarily disabled
           },
         },
       },
@@ -273,110 +230,10 @@ export class PrismaAuthService extends AuthPrismaClient implements OnModuleInit 
   }
 
   // Role and Permission operations
-  async findRoleByName(name: string, tenantId?: string) {
-    return this.role.findFirst({
-      where: {
-        name,
-        ...(tenantId && { tenantId }),
-        isActive: true,
-      },
-      include: {
-        rolePermissions: {
-          include: {
-            permission: true,
-          },
-        },
-      },
-    });
-  }
+  // findRoleByName - TEMPORARILY DISABLED
 
-  async findRoleById(id: number) {
-    return this.role.findUnique({
-      where: { id },
-      include: {
-        rolePermissions: {
-          include: {
-            permission: true,
-          },
-        },
-      },
-    });
-  }
-
-  async createRole(data: {
-    name: string;
-    description?: string;
-    tenantId?: string;
-  }) {
-    return this.role.create({
-      data,
-    });
-  }
-
-  async assignRoleToUser(data: {
-    userId: number;
-    roleId: number;
-    tenantId?: string;
-  }) {
-    return this.userRole.create({
-      data,
-    });
-  }
-
-  async removeRoleFromUser(data: {
-    userId: number;
-    roleId: number;
-    tenantId?: string;
-  }) {
-    return this.userRole.deleteMany({
-      where: data,
-    });
-  }
-
-  async getUserRoles(userId: number, tenantId?: string) {
-    return this.userRole.findMany({
-      where: {
-        userId,
-        ...(tenantId && { tenantId }),
-      },
-      include: {
-        role: {
-          include: {
-            rolePermissions: {
-              include: {
-                permission: true,
-              },
-            },
-          },
-        },
-      },
-    });
-  }
-
-  async getUserPermissions(userId: number, tenantId?: string) {
-    const userRoles = await this.getUserRoles(userId, tenantId);
-    const permissions = new Map();
-    
-    userRoles.forEach(userRole => {
-      userRole.role.rolePermissions.forEach(rolePermission => {
-        const permission = rolePermission.permission;
-        if (permission.isActive) {
-          permissions.set(permission.id, permission);
-        }
-      });
-    });
-
-    return Array.from(permissions.values());
-  }
-
-  async checkUserPermission(userId: number, resource: string, action: string, tenantId?: string) {
-    const permissions = await this.getUserPermissions(userId, tenantId);
-    return permissions.some(permission => 
-      permission.resource === resource && 
-      permission.action === action &&
-      permission.isActive
-    );
-  }
+  // RBAC methods - TEMPORARILY DISABLED
+  // All role and permission methods have been removed to simplify the system
 
   // Password reset operations
   async createPasswordResetToken(data: {

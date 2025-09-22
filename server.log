@@ -1,0 +1,114 @@
+
+> shooterista-backend@1.0.0 dev
+> ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/main.ts
+
+[INFO] 13:56:04 ts-node-dev ver. 2.0.0 (using ts-node ver. 10.9.2, typescript ver. 5.9.2)
+📁 Loading environment from: .env.development
+[Nest] 75997  - 09/22/2025, 1:56:05 PM     LOG [NestFactory] Starting Nest application...
+[Nest] 75997  - 09/22/2025, 1:56:05 PM     LOG [InstanceLoader] AppModule dependencies initialized +14ms
+[Nest] 75997  - 09/22/2025, 1:56:05 PM     LOG [InstanceLoader] AppConfigModule dependencies initialized +0ms
+[Nest] 75997  - 09/22/2025, 1:56:05 PM     LOG [InstanceLoader] BullInfraModule dependencies initialized +5ms
+[Nest] 75997  - 09/22/2025, 1:56:05 PM     LOG [InstanceLoader] S3Module dependencies initialized +0ms
+[Nest] 75997  - 09/22/2025, 1:56:05 PM     LOG [InstanceLoader] ConfigHostModule dependencies initialized +1ms
+[Nest] 75997  - 09/22/2025, 1:56:05 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 75997  - 09/22/2025, 1:56:05 PM     LOG [InstanceLoader] JwtModule dependencies initialized +1ms
+[Nest] 75997  - 09/22/2025, 1:56:05 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 75997  - 09/22/2025, 1:56:05 PM     LOG [InstanceLoader] ConfigModule dependencies initialized +6ms
+[Nest] 75997  - 09/22/2025, 1:56:05 PM     LOG [InstanceLoader] TerminusModule dependencies initialized +0ms
+[Nest] 75997  - 09/22/2025, 1:56:05 PM     LOG [InstanceLoader] JwtModule dependencies initialized +12ms
+[Nest] 75997  - 09/22/2025, 1:56:05 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 75997  - 09/22/2025, 1:56:05 PM     LOG [InstanceLoader] GraphQLSchemaBuilderModule dependencies initialized +0ms
+[Nest] 75997  - 09/22/2025, 1:56:05 PM     LOG [InstanceLoader] HealthModule dependencies initialized +0ms
+[Nest] 75997  - 09/22/2025, 1:56:05 PM     LOG [InstanceLoader] TenantModule dependencies initialized +0ms
+[Nest] 75997  - 09/22/2025, 1:56:05 PM     LOG [InstanceLoader] UserModule dependencies initialized +0ms
+[Nest] 75997  - 09/22/2025, 1:56:05 PM     LOG [InstanceLoader] GqlModule dependencies initialized +1ms
+[Nest] 75997  - 09/22/2025, 1:56:05 PM     LOG [InstanceLoader] GraphQLModule dependencies initialized +0ms
+[Nest] 75997  - 09/22/2025, 1:56:05 PM     LOG [InstanceLoader] AuthModule dependencies initialized +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RoutesResolver] AuthController {/auth}: +50ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/auth/register, POST} route +1ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/auth/login, POST} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/auth/refresh, POST} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/auth/logout, POST} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/auth/logout-all, POST} route +1ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/auth/me, GET} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/auth/password/change, POST} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/auth/password/reset/request, POST} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/auth/password/reset, POST} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/auth/email/verify, POST} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/auth/email/resend, POST} route +1ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/auth/mfa/setup, POST} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/auth/mfa/enable, POST} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/auth/mfa/disable, POST} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RoutesResolver] TenantController {/tenant}: +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/tenant, POST} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/tenant/:id, GET} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/tenant/slug/:slug, GET} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/tenant/:id, PUT} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/tenant/invite, POST} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/tenant/my/tenants, GET} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/tenant/:id/users, GET} route +1ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/tenant/switch, POST} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RoutesResolver] UserController {/user}: +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/user/profile, GET} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/user/profile, PUT} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/user/activities, GET} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/user/notifications, GET} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/user/preferences, GET} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RoutesResolver] HealthController {/health}: +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/health, GET} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/health/ready, GET} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RouterExplorer] Mapped {/health/live, GET} route +0ms
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [InitializationService] Initializing authentication system...
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [InitializationService] Initializing default roles and permissions...
+[Nest] 75997  - 09/22/2025, 1:56:06 PM     LOG [RbacService] Initializing default roles and permissions...
+[2025-09-22 13:56:06.010 +0530] [32mINFO[39m (75997): [36m📚 Swagger documentation available at: http://localhost:5001/api/docs[39m
+[Nest] 75997  - 09/22/2025, 1:56:06 PM   ERROR [InitializationService] Failed to initialize authentication system
+[Nest] 75997  - 09/22/2025, 1:56:06 PM   ERROR [InitializationService] PrismaClientKnownRequestError: 
+Invalid `this.prismaAuth.permission.findFirst()` invocation in
+/Users/drprockz/STSPL/v1/shooterista-backend-v2/src/modules/auth/services/rbac.service.ts:150:55
+
+  147   resource: string;
+  148   action: string;
+  149 }): Promise<void> {
+→ 150   const existing = await this.prismaAuth.permission.findFirst(
+The table `public.permissions` does not exist in the current database.
+    at ei.handleRequestError [90m(/Users/drprockz/STSPL/v1/shooterista-backend-v2/[39mnode_modules/[4m.prisma[24m/auth/runtime/library.js:124:7268[90m)[39m
+    at ei.handleAndLogRequestError [90m(/Users/drprockz/STSPL/v1/shooterista-backend-v2/[39mnode_modules/[4m.prisma[24m/auth/runtime/library.js:124:6593[90m)[39m
+    at ei.request [90m(/Users/drprockz/STSPL/v1/shooterista-backend-v2/[39mnode_modules/[4m.prisma[24m/auth/runtime/library.js:124:6300[90m)[39m
+    at a [90m(/Users/drprockz/STSPL/v1/shooterista-backend-v2/[39mnode_modules/[4m.prisma[24m/auth/runtime/library.js:133:9551[90m)[39m
+    at RbacService.createPermissionIfNotExists [90m(/Users/drprockz/STSPL/v1/shooterista-backend-v2/[39msrc/modules/auth/services/rbac.service.ts:150:22[90m)[39m
+    at RbacService.initializeDefaultRoles [90m(/Users/drprockz/STSPL/v1/shooterista-backend-v2/[39msrc/modules/auth/services/rbac.service.ts:62:7[90m)[39m
+    at InitializationService.initializeDefaultRoles [90m(/Users/drprockz/STSPL/v1/shooterista-backend-v2/[39msrc/modules/auth/services/initialization.service.ts:38:5[90m)[39m
+    at InitializationService.onModuleInit [90m(/Users/drprockz/STSPL/v1/shooterista-backend-v2/[39msrc/modules/auth/services/initialization.service.ts:21:7[90m)[39m
+    at async Promise.all (index 1)
+    at callModuleInitHook [90m(/Users/drprockz/STSPL/v1/shooterista-backend-v2/[39mnode_modules/[4m@nestjs[24m/core/hooks/on-module-init.hook.js:43:5[90m)[39m {
+  code: [32m'P2021'[39m,
+  meta: {
+    modelName: [32m'Permission'[39m,
+    table: [32m'public.permissions'[39m
+  },
+  clientVersion: [32m'6.16.2'[39m
+}
+❌ Error starting server: PrismaClientKnownRequestError: 
+Invalid `this.prismaAuth.permission.findFirst()` invocation in
+/Users/drprockz/STSPL/v1/shooterista-backend-v2/src/modules/auth/services/rbac.service.ts:150:55
+
+  147   resource: string;
+  148   action: string;
+  149 }): Promise<void> {
+→ 150   const existing = await this.prismaAuth.permission.findFirst(
+The table `public.permissions` does not exist in the current database.
+    at ei.handleRequestError (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/.prisma/auth/runtime/library.js:124:7268)
+    at ei.handleAndLogRequestError (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/.prisma/auth/runtime/library.js:124:6593)
+    at ei.request (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/.prisma/auth/runtime/library.js:124:6300)
+    at a (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/.prisma/auth/runtime/library.js:133:9551)
+    at RbacService.createPermissionIfNotExists (/Users/drprockz/STSPL/v1/shooterista-backend-v2/src/modules/auth/services/rbac.service.ts:150:22)
+    at RbacService.initializeDefaultRoles (/Users/drprockz/STSPL/v1/shooterista-backend-v2/src/modules/auth/services/rbac.service.ts:62:7)
+    at InitializationService.initializeDefaultRoles (/Users/drprockz/STSPL/v1/shooterista-backend-v2/src/modules/auth/services/initialization.service.ts:38:5)
+    at InitializationService.onModuleInit (/Users/drprockz/STSPL/v1/shooterista-backend-v2/src/modules/auth/services/initialization.service.ts:21:7)
+    at async Promise.all (index 1)
+    at callModuleInitHook (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/@nestjs/core/hooks/on-module-init.hook.js:43:5) {
+  code: 'P2021',
+  meta: { modelName: 'Permission', table: 'public.permissions' },
+  clientVersion: '6.16.2'
+}

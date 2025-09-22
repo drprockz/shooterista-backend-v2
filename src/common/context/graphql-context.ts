@@ -69,7 +69,7 @@ export class GraphQLContextService {
   // Helper method to check if user has specific role
   hasRole(context: GraphQLContext, role: string): boolean {
     if (!context.user) return false;
-    return context.user.roles?.includes(role) || false;
+    return Array.isArray(context.user.roles) && context.user.roles.includes(role);
   }
 
   // Helper method to check if user has specific permission
@@ -77,7 +77,7 @@ export class GraphQLContextService {
     if (!context.user) return false;
     
     const permissionKey = `${resource}:${action}`;
-    return context.user.permissions?.includes(permissionKey) || false;
+    return Array.isArray(context.user.permissions) && context.user.permissions.includes(permissionKey);
   }
 
   // Helper method to get tenant ID

@@ -49,12 +49,19 @@ export enum TokenType {
   EMAIL_VERIFICATION = 'EMAIL_VERIFICATION',
 }
 
+export enum UserType {
+  SUPERADMIN = 'SUPERADMIN',
+  ADMIN = 'ADMIN',
+  ATHLETE = 'ATHLETE',
+}
+
 // Register enums with GraphQL
 registerEnumType(UserStatus, { name: 'UserStatus' });
 registerEnumType(MfaType, { name: 'MfaType' });
 registerEnumType(SessionStatus, { name: 'SessionStatus' });
 registerEnumType(AuditAction, { name: 'AuditAction' });
 registerEnumType(TokenType, { name: 'TokenType' });
+registerEnumType(UserType, { name: 'UserType' });
 
 // Core Types
 @ObjectType()
@@ -70,6 +77,9 @@ export class User {
 
   @Field({ nullable: true })
   lastName?: string;
+
+  @Field(() => UserType)
+  userType: UserType;
 
   @Field()
   isEmailVerified: boolean;
@@ -245,6 +255,15 @@ export class AuthPayload {
 
   @Field({ nullable: true })
   mfaType?: MfaType;
+
+  @Field({ nullable: true })
+  profileComplete?: boolean;
+
+  @Field({ nullable: true })
+  requiresConsent?: boolean;
+
+  @Field({ nullable: true })
+  sessionId?: string;
 }
 
 @ObjectType()
@@ -351,6 +370,148 @@ export class ValidationError {
 
   @Field()
   value: string;
+}
+
+// New response types for enhanced authentication
+@ObjectType()
+export class OTPResponse {
+  @Field()
+  success: boolean;
+
+  @Field()
+  message: string;
+
+  @Field({ nullable: true })
+  sessionId?: string;
+
+  @Field({ nullable: true })
+  expiresAt?: Date;
+
+  @Field({ nullable: true })
+  resendAfter?: number; // seconds
+}
+
+@ObjectType()
+export class ProfileCompletionResponse {
+  @Field()
+  isComplete: boolean;
+
+  @Field(() => [String])
+  missingFields: string[];
+
+  @Field({ nullable: true })
+  completionPercentage?: number;
+}
+
+@ObjectType()
+export class ConsentResponse {
+  @Field()
+  success: boolean;
+
+  @Field()
+  message: string;
+
+  @Field()
+  termsAccepted: boolean;
+
+  @Field()
+  privacyAccepted: boolean;
+
+  @Field({ nullable: true })
+  termsVersion?: string;
+
+  @Field({ nullable: true })
+  privacyVersion?: string;
+
+  @Field()
+  acceptedAt: Date;
+}
+
+@ObjectType()
+export class InviteResponse {
+  @Field()
+  success: boolean;
+
+  @Field()
+  message: string;
+
+  @Field({ nullable: true })
+  inviteId?: string;
+
+  @Field({ nullable: true })
+  expiresAt?: Date;
+}
+
+@ObjectType()
+export class InviteInfo {
+  @Field()
+  id: string;
+
+  @Field()
+  email: string;
+
+  @Field({ nullable: true })
+  firstName?: string;
+
+  @Field({ nullable: true })
+  lastName?: string;
+
+  @Field({ nullable: true })
+  role?: string;
+
+  @Field({ nullable: true })
+  message?: string;
+
+  @Field()
+  tenantId: string;
+
+  @Field()
+  invitedBy: string;
+
+  @Field()
+  status: string;
+
+  @Field()
+  expiresAt: Date;
+
+  @Field()
+  createdAt: Date;
+}
+
+@ObjectType()
+export class HealthMetrics {
+  @Field()
+  authLatency: number;
+
+  @Field()
+  errorRate: number;
+
+  @Field()
+  activeSessions: number;
+
+  @Field()
+  failedLogins: number;
+
+  @Field()
+  lockouts: number;
+
+  @Field()
+  lastUpdated: Date;
+}
+
+@ObjectType()
+export class SecurityStatus {
+  @Field()
+  isSecure: boolean;
+
+  @Field(() => [String])
+  issues: string[];
+
+  @Field(() => [String])
+  recommendations: string[];
+
+  @Field()
+  lastChecked: Date;
 }
 
 // Token Payload Interface

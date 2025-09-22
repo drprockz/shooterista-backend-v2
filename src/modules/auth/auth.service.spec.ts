@@ -17,6 +17,7 @@ describe('AuthService', () => {
     password: 'hashedpassword',
     firstName: 'Test',
     lastName: 'User',
+    userType: 'ATHLETE' as any,
     isEmailVerified: false,
     isMfaEnabled: false,
     mfaSecret: null,

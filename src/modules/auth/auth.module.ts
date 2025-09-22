@@ -1,20 +1,23 @@
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { AuthResolver } from './auth.resolver';
-import { RbacResolver } from './rbac.resolver';
+import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { RefreshTokenStrategy } from './strategies/refresh-token.strategy';
 import { AuthGuard } from '@/common/guards/auth.guard';
 import { PrismaAuthService } from './prisma-auth.service';
 import { MfaService } from './services/mfa.service';
-import { EmailService } from './services/email.service';
 import { RateLimitService } from './services/rate-limit.service';
 import { AuditService } from './services/audit.service';
-import { RbacService } from './services/rbac.service';
-import { InitializationService } from './services/initialization.service';
-import { TestResolver } from '../../test-resolver';
+// import { InitializationService } from './services/initialization.service'; // Temporarily disabled
+import { OTPService } from './services/otp.service';
+import { NotificationsModule } from '../../infra/notifications/notifications.module';
+import { TenantContextModule } from '../../infra/tenant-context/tenant-context.module';
+import { ProfileCompletionService } from './services/profile-completion.service';
+import { ConsentService } from './services/consent.service';
+import { SecurityService } from './services/security.service';
 
 @Module({
   imports: [
@@ -29,32 +32,37 @@ import { TestResolver } from '../../test-resolver';
         },
       }),
     }),
+    NotificationsModule,
+    TenantContextModule,
   ],
+  controllers: [AuthController],
   providers: [
     AuthService,
     AuthResolver,
-    RbacResolver,
-    TestResolver,
     JwtStrategy,
     RefreshTokenStrategy,
     AuthGuard,
     PrismaAuthService,
     MfaService,
-    EmailService,
     RateLimitService,
     AuditService,
-    RbacService,
-    InitializationService,
+    OTPService,
+    // ProfileCompletionService, // Temporarily disabled due to missing Prisma methods
+    // ConsentService, // Temporarily disabled due to missing Prisma methods
+    // SecurityService, // Temporarily disabled due to missing Prisma methods
+    // InitializationService, // Temporarily disabled
   ],
   exports: [
     AuthService, 
     AuthGuard, 
     PrismaAuthService, 
-    MfaService, 
-    EmailService, 
-    RateLimitService, 
+    MfaService,
+    RateLimitService,
     AuditService,
-    RbacService,
+    OTPService,
+    // ProfileCompletionService, // Temporarily disabled
+    // ConsentService, // Temporarily disabled
+    // SecurityService, // Temporarily disabled
   ],
 })
 export class AuthModule {}

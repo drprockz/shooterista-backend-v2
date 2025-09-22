@@ -64,7 +64,7 @@ function validateEnvironment(): ValidationResult[] {
         variable: varName,
         status: 'valid',
         message: 'Present',
-        value: varName.includes('SECRET') || varName.includes('PASSWORD') 
+        value: (typeof varName === 'string' && (varName.includes('SECRET') || varName.includes('PASSWORD'))) 
           ? '***hidden***' 
           : value,
       });
@@ -81,7 +81,7 @@ function validateEnvironment(): ValidationResult[] {
         message: 'JWT secret must be at least 32 characters long',
         value: '***hidden***',
       });
-    } else if (jwtSecret === 'your-jwt-secret-key-here' || jwtSecret.includes('change-in-production')) {
+    } else if (jwtSecret === 'your-jwt-secret-key-here' || (typeof jwtSecret === 'string' && jwtSecret.includes('change-in-production'))) {
       results.push({
         variable: 'JWT_SECRET',
         status: 'warning',
@@ -105,7 +105,7 @@ function validateEnvironment(): ValidationResult[] {
         });
       }
       
-      if (url.includes('password') && url.includes('localhost')) {
+      if (typeof url === 'string' && url.includes('password') && url.includes('localhost')) {
         results.push({
           variable: urlVar,
           status: 'warning',
@@ -140,7 +140,7 @@ function validateEnvironment(): ValidationResult[] {
   
   // Check CORS origins
   const corsOrigins = process.env.CORS_ORIGINS;
-  if (corsOrigins && corsOrigins.includes('*')) {
+  if (corsOrigins && typeof corsOrigins === 'string' && corsOrigins.includes('*')) {
     results.push({
       variable: 'CORS_ORIGINS',
       status: 'warning',

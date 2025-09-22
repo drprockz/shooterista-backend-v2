@@ -4,14 +4,34 @@ import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import pino from 'pino';
-import pinoHttp from 'pino-http';
 import { v4 as uuid } from 'uuid';
 import { ValidationPipe } from '@/common/pipes/validation.pipe';
 import { GlobalExceptionFilter } from '@/common/filters/global-exception.filter';
+import { FastifyExceptionFilter } from '@/common/filters/fastify-exception.filter';
 import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
 import { RateLimitInterceptor } from '@/common/interceptors/rate-limit.interceptor';
+import { 
+  createFastifyCorsOptions,
+  fastifyRequestIdMiddleware,
+  fastifySecurityHeadersMiddleware,
+  fastifyIpValidationMiddleware,
+  createFastifyRequestSizeMiddleware,
+  fastifyUserAgentValidationMiddleware,
+  createFastifyRateLimitMiddleware
+} from '@/common/middleware/fastify-security.middleware';
 
 async function bootstrap() {
+  // Log environment information at startup
+  const nodeEnv = process.env.NODE_ENV || 'development';
+  const envFile = nodeEnv === 'development' ? '.env.development' : 
+                 nodeEnv === 'production' ? '.env.production' : 
+                 nodeEnv === 'test' ? '.env.test' : '.env';
+  
+  console.log(`🚀 Starting Shooterista Backend`);
+  console.log(`📁 Environment: ${nodeEnv}`);
+  console.log(`📄 Config file: ${envFile}`);
+  console.log(`⏰ Started at: ${new Date().toISOString()}`);
+
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule, 
     new FastifyAdapter({
@@ -51,8 +71,8 @@ async function bootstrap() {
   });
 
   // Logger configuration
-  const logLevel = configService.get<string>('app.LOG_LEVEL');
-  const logFormat = configService.get<string>('app.LOG_FORMAT');
+  const logLevel = configService.get<string>('app.LOG_LEVEL') || 'info';
+  const logFormat = configService.get<string>('app.LOG_FORMAT') || 'json';
   
   const logger = pino({
     level: logLevel,
@@ -67,23 +87,16 @@ async function bootstrap() {
     }),
   });
 
-  // Enable CORS
-  const corsOrigins = configService.get<string>('app.CORS_ORIGINS').split(',');
-  app.enableCors({
-    origin: configService.get<string>('app.NODE_ENV') === 'development' 
-      ? true 
-      : corsOrigins,
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: [
-      'Content-Type', 
-      'Authorization', 
-      'X-Request-ID', 
-      'X-Tenant-ID',
-      'x-apollo-operation-name',
-      'apollo-require-preflight'
-    ],
-  });
+  // Enhanced Security Middleware - Fastify compatible
+  const corsOptions = createFastifyCorsOptions(configService);
+  app.enableCors(corsOptions);
+
+  // Apply Fastify-compatible security middleware using hooks
+  fastifyInstance.addHook('onRequest', fastifySecurityHeadersMiddleware);
+  fastifyInstance.addHook('onRequest', fastifyIpValidationMiddleware);
+  fastifyInstance.addHook('onRequest', createFastifyRequestSizeMiddleware(configService.get<number>('app.MAX_FILE_SIZE') || 10485760));
+  fastifyInstance.addHook('onRequest', fastifyUserAgentValidationMiddleware);
+  fastifyInstance.addHook('onRequest', createFastifyRateLimitMiddleware(configService));
 
   // Swagger API Documentation
   if (configService.get<string>('app.NODE_ENV') === 'development') {
@@ -105,9 +118,11 @@ async function bootstrap() {
         )
         .addTag('Health', 'Health check endpoints')
         .addTag('Auth', 'Authentication and authorization')
+        .addTag('Tenant', 'Tenant and organization management')
+        .addTag('User', 'User profile management')
         .addTag('Athletes', 'Athlete management')
         .addTag('Competitions', 'Competition management')
-        .addServer(`http://localhost:${configService.get<number>('app.PORT')}`, 'Development server')
+        .addServer(`http://localhost:${configService.get<number>('app.PORT') || 5001}`, 'Development server')
         .build();
 
       const document = SwaggerModule.createDocument(app, config);
@@ -131,36 +146,43 @@ async function bootstrap() {
     }
   }
 
-  // Request logging and ID generation
-  app.use(pinoHttp({
-    logger,
-    genReqId: (req) => req.headers['x-request-id'] as string || uuid(),
-    customProps: (req) => ({
-      tenant: req.headers['x-tenant-id'] || null,
-      userAgent: req.headers['user-agent'],
-    }),
-    serializers: {
-      req: (req) => ({
-        method: req.method,
-        url: req.url,
-        headers: {
-          host: req.headers.host,
-          'user-agent': req.headers['user-agent'],
-          'content-length': req.headers['content-length'],
-        },
-      }),
-      res: (res) => ({
-        statusCode: res.statusCode,
-        headers: {
-          'content-length': res.headers['content-length'],
-        },
-      }),
-    },
-  }) as any);
+  // Request logging using Fastify hooks
+  fastifyInstance.addHook('onRequest', async (request, reply) => {
+    const requestId = request.headers['x-request-id'] as string || uuid();
+    request.headers['x-request-id'] = requestId;
+    reply.header('X-Request-ID', requestId);
+    
+    // Log request
+    logger.info({
+      method: request.method,
+      url: request.url,
+      headers: {
+        host: request.headers.host,
+        'user-agent': request.headers['user-agent'],
+        'content-length': request.headers['content-length'],
+      },
+      tenant: request.headers['x-tenant-id'] || null,
+      requestId,
+    }, 'Incoming request');
+  });
+
+  fastifyInstance.addHook('onResponse', async (request, reply) => {
+    // Log response
+    const startTime = (request as any).startTime || Date.now();
+    const responseTime = Date.now() - startTime;
+    
+    logger.info({
+      method: request.method,
+      url: request.url,
+      statusCode: reply.statusCode,
+      responseTime: `${responseTime}ms`,
+      requestId: request.headers['x-request-id'],
+    }, 'Request completed');
+  });
 
   // Global pipes, filters, and interceptors
   app.useGlobalPipes(new ValidationPipe());
-  app.useGlobalFilters(new GlobalExceptionFilter());
+  app.useGlobalFilters(new FastifyExceptionFilter(configService));
   app.useGlobalInterceptors(new ResponseInterceptor());
 
   // Add a simple root route
@@ -192,7 +214,7 @@ async function bootstrap() {
     process.exit(0);
   });
 
-  const port = configService.get<number>('app.PORT');
+  const port = configService.get<number>('app.PORT') || 5001;
   await app.listen({ port, host: '0.0.0.0' });
   
   logger.info(`🚀 Application is running on: http://localhost:${port}`);

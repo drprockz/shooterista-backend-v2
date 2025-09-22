@@ -68,21 +68,47 @@ type AuthPayload {
   expiresIn: Int!
   mfaRequired: Boolean
   mfaType: String
+  profileComplete: Boolean
   refreshToken: String!
+  requiresConsent: Boolean
+  sessionId: String
   user: User!
 }
 
 input ChangePasswordInput {
   currentPassword: String!
+  ipAddress: String
   newPassword: String!
+  userAgent: String
+}
+
+input CreateTenantInput {
+  address: String
+  currency: String
+  description: String
+  email: String
+  logo: String
+  name: String!
+  phone: String
+  slug: String!
+  timezone: String
+  website: String
 }
 
 input CreateUserInput {
+  acceptPrivacy: Boolean
+  acceptTerms: Boolean
+  deviceInfo: String
   email: String!
   firstName: String
+  ipAddress: String
   lastName: String
   password: String!
+  privacyVersion: String
   tenantId: String
+  termsVersion: String
+  userAgent: String
+  userType: String
 }
 
 """
@@ -91,7 +117,9 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 input EmailVerificationInput {
+  ipAddress: String
   token: String!
+  userAgent: String
 }
 
 type EmailVerificationResponse {
@@ -100,17 +128,32 @@ type EmailVerificationResponse {
   success: Boolean!
 }
 
+enum InvitationStatus {
+  ACCEPTED
+  CANCELLED
+  EXPIRED
+  PENDING
+}
+
 input LoginInput {
   deviceInfo: String
   email: String!
   ipAddress: String
   password: String!
+  rememberMe: Boolean
   tenantId: String
   userAgent: String
 }
 
 input LogoutInput {
   refreshToken: String!
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  SUSPENDED
 }
 
 input MfaDisableInput {
@@ -136,42 +179,67 @@ enum MfaType {
 
 input MfaVerificationInput {
   backupCode: String
+  sessionId: String
   token: String!
   type: MfaType!
 }
 
 type Mutation {
-  assignRole(input: RoleAssignmentInput!): Boolean!
   changePassword(input: ChangePasswordInput!): Boolean!
-  createRoleBundle(description: String!, name: String!, permissions: [String!]!, tenantId: String): Role!
+  createTenant(input: CreateTenantInput!): Tenant!
   disableMfa(input: MfaDisableInput!): Boolean!
   enableMfa(input: MfaVerificationInput!): Boolean!
+  inviteUser(input: TenantInviteInput!): TenantInvitation!
   login(input: LoginInput!): AuthPayload!
   loginAsAdmin(input: AdminLoginInput!): AuthPayload!
   logout(input: LogoutInput!): Boolean!
   logoutAll: Boolean!
   refreshToken(input: RefreshTokenInput!): TokenRefreshPayload!
   register(input: CreateUserInput!): AuthPayload!
-  removeRole(input: RoleRemovalInput!): Boolean!
   requestPasswordReset(input: PasswordResetRequestInput!): PasswordResetResponse!
   resendEmailVerification(input: ResendEmailVerificationInput!): EmailVerificationResponse!
+  resendOTP(email: String!): OTPResponse!
   resetPassword(input: PasswordResetInput!): Boolean!
   revokeSession(input: SessionRevokeInput!): Boolean!
+  sendTestEmail(to: String!): String!
   setupMfa(input: MfaSetupInput!): MfaSetup!
-  updateRoleBundle(description: String, name: String, permissions: [String!], roleId: String!): Role!
+  switchTenant(input: TenantSwitchInput!): TenantSwitchResponse!
+  updateTenant(id: String!, input: UpdateTenantInput!): Tenant!
   updateUser(input: UserUpdateInput!): User!
+  updateUserProfile(data: String!): String!
   verifyEmail(input: EmailVerificationInput!): Boolean!
+  verifyEmailWithOTP(input: OTPVerificationInput!): Boolean!
   verifyMfa(input: MfaVerificationInput!): AuthPayload!
+  verifyOTP(input: OTPVerificationInput!): OTPResponse!
+}
+
+type OTPResponse {
+  expiresAt: DateTime
+  message: String!
+  resendAfter: Float
+  sessionId: String
+  success: Boolean!
+}
+
+input OTPVerificationInput {
+  ipAddress: String
+  otp: String!
+  sessionId: String!
+  userAgent: String
 }
 
 input PasswordResetInput {
+  ipAddress: String
   newPassword: String!
   token: String!
+  userAgent: String
 }
 
 input PasswordResetRequestInput {
   email: String!
+  ipAddress: String
   tenantId: String
+  userAgent: String
 }
 
 type PasswordResetResponse {
@@ -191,31 +259,32 @@ type Permission {
   updatedAt: DateTime!
 }
 
-input PermissionCheckInput {
-  action: String!
-  resource: String!
-  tenantId: String
-}
-
-type PermissionCheckResponse {
-  hasPermission: Boolean!
-  userPermissions: [Permission!]!
-  userRoles: [Role!]!
+enum PlanType {
+  BASIC
+  CUSTOM
+  ENTERPRISE
+  FREE
+  PREMIUM
 }
 
 type Query {
-  checkPermission(input: PermissionCheckInput!): PermissionCheckResponse!
   getAuditLogs(input: AuditLogsInput!): AuditLogResponse!
-  getMyPermissions: [Permission!]!
-  getPermissions: [Permission!]!
-  getRoles: [Role!]!
+  getSessionInfo(sessionId: String!): String!
   getSessions(input: SessionListInput!): SessionListResponse!
-  hasPermission(action: String!, resource: String!): Boolean!
+  getTenant(id: String!): Tenant!
+  getTenantBySlug(slug: String!): Tenant!
+  getTenantUsers(tenantId: String!): [TenantUser!]!
+  getUserActivities: [String!]!
+  getUserNotifications: [String!]!
+  getUserPreferences: [String!]!
+  getUserProfile: String!
+  getUserTenants: [TenantUser!]!
   health: String!
   hello: String!
-  initializeDefaultRoles: String!
   me: User!
+  tenantHealth: String!
   test: String!
+  userHealth: String!
 }
 
 input RefreshTokenInput {
@@ -227,7 +296,9 @@ input RefreshTokenInput {
 
 input ResendEmailVerificationInput {
   email: String!
+  ipAddress: String
   tenantId: String
+  userAgent: String
 }
 
 type Role {
@@ -239,18 +310,6 @@ type Role {
   permissions: [Permission!]
   tenantId: String
   updatedAt: DateTime!
-}
-
-input RoleAssignmentInput {
-  roleId: String!
-  tenantId: String
-  userId: String!
-}
-
-input RoleRemovalInput {
-  roleId: String!
-  tenantId: String
-  userId: String!
 }
 
 type Session {
@@ -288,10 +347,93 @@ enum SessionStatus {
   REVOKED
 }
 
+type Tenant {
+  address: String
+  createdAt: DateTime!
+  currency: String!
+  description: String
+  email: String
+  id: ID!
+  isActive: Boolean!
+  logo: String
+  name: String!
+  phone: String
+  planExpiry: DateTime
+  planType: PlanType!
+  slug: String!
+  timezone: String!
+  updatedAt: DateTime!
+  users: [String!]
+  website: String
+}
+
+type TenantInvitation {
+  createdAt: DateTime!
+  email: String!
+  expiresAt: DateTime!
+  id: ID!
+  invitedBy: ID!
+  role: TenantUserRole!
+  status: InvitationStatus!
+  tenant: Tenant
+  tenantId: ID!
+  token: String!
+}
+
+input TenantInviteInput {
+  email: String!
+  role: String
+  tenantId: String!
+}
+
+input TenantSwitchInput {
+  tenantId: String!
+}
+
+type TenantSwitchResponse {
+  membership: TenantUser!
+  message: String!
+  success: Boolean!
+}
+
+type TenantUser {
+  createdAt: DateTime!
+  id: ID!
+  joinedAt: DateTime!
+  leftAt: DateTime
+  role: TenantUserRole!
+  status: MembershipStatus!
+  tenant: Tenant
+  tenantId: ID!
+  updatedAt: DateTime!
+  userId: ID!
+}
+
+enum TenantUserRole {
+  ADMIN
+  MANAGER
+  MEMBER
+  OWNER
+  VIEWER
+}
+
 type TokenRefreshPayload {
   accessToken: String!
   expiresIn: Int!
   refreshToken: String!
+}
+
+input UpdateTenantInput {
+  address: String
+  currency: String
+  description: String
+  email: String
+  isActive: Boolean
+  logo: String
+  name: String
+  phone: String
+  timezone: String
+  website: String
 }
 
 type User {
@@ -309,6 +451,7 @@ type User {
   status: UserStatus!
   tenantId: String
   updatedAt: DateTime!
+  userType: UserType!
 }
 
 enum UserStatus {
@@ -316,6 +459,12 @@ enum UserStatus {
   INACTIVE
   PENDING_VERIFICATION
   SUSPENDED
+}
+
+enum UserType {
+  ADMIN
+  ATHLETE
+  SUPERADMIN
 }
 
 input UserUpdateInput {

@@ -1,0 +1,230 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("USER_DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/.prisma/user"
+}
+
+// =============================================================================
+// USER PROFILE MODELS
+// =============================================================================
+// This schema manages:
+// - User profiles and personal information
+// - User preferences and settings
+// - Cross-tenant user data
+// - User activity and engagement
+
+model UserProfile {
+  id          Int       @id @default(autoincrement())
+  userId      Int       @unique // References auth.users.id
+  
+  // Personal Information
+  firstName   String?   @db.VarChar(100)
+  lastName    String?   @db.VarChar(100)
+  displayName String?   @db.VarChar(200)
+  bio         String?   @db.Text
+  avatar      String?   @db.VarChar(500)
+  
+  // Contact Information
+  phone       String?   @db.VarChar(20)
+  
+  // Location
+  country     String?   @db.VarChar(3) // ISO 3166-1 alpha-3
+  state       String?   @db.VarChar(100)
+  city        String?   @db.VarChar(100)
+  timezone    String?   @db.VarChar(50)
+  
+  // Personal Details
+  dateOfBirth DateTime?
+  gender      Gender?
+  
+  // Professional Information
+  title       String?   @db.VarChar(100)
+  company     String?   @db.VarChar(200)
+  website     String?   @db.VarChar(255)
+  
+  // Social Links
+  socialLinks Json?     // { linkedin, twitter, instagram, etc. }
+  
+  // Preferences
+  preferences Json?     // User preferences and settings
+  
+  // Privacy Settings
+  privacy     Json?     // Privacy preferences
+  
+  // Metadata
+  isComplete  Boolean   @default(false)
+  lastUpdated DateTime  @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  activities  UserActivity[]
+  
+  @@index([userId])
+  @@index([country])
+  @@map("user_profiles")
+}
+
+model UserActivity {
+  id          BigInt      @id @default(autoincrement())
+  userId      Int         // References auth.users.id
+  tenantId    String?     // Optional tenant context
+  
+  // Activity Details
+  action      String      @db.VarChar(100)
+  resource    String?     @db.VarChar(100)
+  resourceId  String?     @db.VarChar(100)
+  description String?     @db.Text
+  
+  // Context
+  ipAddress   String?     @db.VarChar(45)
+  userAgent   String?     @db.Text
+  metadata    Json?
+  
+  // Categorization
+  category    ActivityCategory @default(GENERAL)
+  severity    ActivitySeverity @default(INFO)
+  
+  // Timestamp
+  occurredAt  DateTime    @default(now())
+  createdAt   DateTime    @default(now())
+  
+  // Relations
+  userProfile UserProfile @relation(fields: [userId], references: [userId])
+  
+  @@index([userId, occurredAt])
+  @@index([tenantId, occurredAt])
+  @@index([action])
+  @@index([category])
+  @@map("user_activities")
+}
+
+model UserNotification {
+  id          BigInt           @id @default(autoincrement())
+  userId      Int              // References auth.users.id
+  tenantId    String?          // Optional tenant context
+  
+  // Notification Content
+  type        NotificationType
+  title       String           @db.VarChar(200)
+  message     String           @db.Text
+  data        Json?            // Additional data
+  
+  // Links
+  actionUrl   String?          @db.VarChar(500)
+  actionText  String?          @db.VarChar(100)
+  
+  // Status
+  isRead      Boolean          @default(false)
+  readAt      DateTime?
+  
+  // Delivery
+  channels    Json?            // Which channels to send to
+  sentAt      DateTime?
+  
+  // Priority
+  priority    NotificationPriority @default(NORMAL)
+  
+  // Expiry
+  expiresAt   DateTime?
+  
+  // Metadata
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  
+  @@index([userId, isRead])
+  @@index([tenantId, createdAt])
+  @@index([type, priority])
+  @@index([expiresAt])
+  @@map("user_notifications")
+}
+
+model UserPreference {
+  id            Int     @id @default(autoincrement())
+  userId        Int     // References auth.users.id
+  tenantId      String? // Optional tenant-specific preference
+  
+  // Preference Details
+  category      String  @db.VarChar(50)  // e.g., 'notifications', 'privacy', 'display'
+  key           String  @db.VarChar(100) // e.g., 'email_marketing', 'theme'
+  value         Json    // Preference value (can be string, boolean, number, object)
+  
+  // Metadata
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@unique([userId, tenantId, category, key])
+  @@index([userId, category])
+  @@index([tenantId, category])
+  @@map("user_preferences")
+}
+
+model UserSession {
+  id          String   @id @default(cuid())
+  userId      Int      // References auth.users.id
+  tenantId    String?  // Current tenant context
+  
+  // Session Data
+  data        Json?    // Session storage data
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  expiresAt   DateTime
+  
+  @@index([userId])
+  @@index([tenantId])
+  @@index([expiresAt])
+  @@map("user_sessions")
+}
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum ActivityCategory {
+  GENERAL
+  AUTHENTICATION
+  PROFILE
+  TENANT
+  COMPETITION
+  ATHLETE
+  SYSTEM
+  SECURITY
+}
+
+enum ActivitySeverity {
+  DEBUG
+  INFO
+  WARNING
+  ERROR
+  CRITICAL
+}
+
+enum NotificationType {
+  SYSTEM
+  TENANT_INVITATION
+  COMPETITION_UPDATE
+  ATHLETE_UPDATE
+  SECURITY_ALERT
+  MARKETING
+  REMINDER
+}
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}

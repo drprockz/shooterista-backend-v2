@@ -1,0 +1,229 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("TENANT_DB_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../../../node_modules/.prisma/tenant"
+}
+
+// =============================================================================
+// TENANT MANAGEMENT MODELS
+// =============================================================================
+// This schema manages:
+// - Tenant/Organization information
+// - Subscription and billing
+// - Tenant-level roles and permissions
+// - Basic RBAC for tenant management
+
+model Tenant {
+  id          String   @id @default(cuid())
+  name        String   @db.VarChar(200)
+  slug        String   @unique @db.VarChar(100)
+  description String?  @db.Text
+  logo        String?  @db.VarChar(500)
+  website     String?  @db.VarChar(255)
+  
+  // Contact Information
+  email       String?  @db.VarChar(255)
+  phone       String?  @db.VarChar(20)
+  address     String?  @db.Text
+  
+  // Configuration
+  settings    Json?
+  timezone    String   @default("UTC") @db.VarChar(50)
+  currency    String   @default("USD") @db.VarChar(3)
+  
+  // Subscription
+  planType    PlanType @default(FREE)
+  planExpiry  DateTime?
+  
+  // Database Configuration
+  databaseUrl String?  @db.VarChar(500) // Tenant-specific DB URL (for full isolation)
+  
+  // Metadata
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  deletedAt   DateTime?
+  
+  // Relations
+  userMemberships TenantUser[]
+  roles           TenantRole[]
+  subscriptions   TenantSubscription[]
+  invitations     TenantInvitation[]
+  
+  @@index([isActive])
+  @@index([slug])
+  @@map("tenants")
+}
+
+model TenantUser {
+  id        String         @id @default(cuid())
+  tenantId  String
+  userId    Int            // References auth.users.id
+  role      TenantUserRole @default(MEMBER)
+  status    MembershipStatus @default(ACTIVE)
+  
+  // Permissions - simple tenant-level permissions
+  permissions Json?        // Array of permission strings
+  
+  // Metadata
+  joinedAt  DateTime       @default(now())
+  leftAt    DateTime?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  
+  // Relations
+  tenant    Tenant         @relation(fields: [tenantId], references: [id])
+  roleAssignments TenantRoleAssignment[]
+  
+  @@unique([tenantId, userId])
+  @@index([tenantId, status])
+  @@index([userId])
+  @@map("tenant_users")
+}
+
+model TenantRole {
+  id          Int       @id @default(autoincrement())
+  tenantId    String
+  name        String    @db.VarChar(100)
+  description String?   @db.Text
+  permissions Json      // Array of permission strings
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  tenant      Tenant    @relation(fields: [tenantId], references: [id])
+  assignments TenantRoleAssignment[]
+  
+  @@unique([tenantId, name])
+  @@index([tenantId, isActive])
+  @@map("tenant_roles")
+}
+
+model TenantRoleAssignment {
+  id           Int        @id @default(autoincrement())
+  tenantUserId String
+  roleId       Int
+  assignedBy   Int?       // User ID who assigned this role
+  createdAt    DateTime   @default(now())
+  
+  // Relations
+  tenantUser   TenantUser @relation(fields: [tenantUserId], references: [id], onDelete: Cascade)
+  role         TenantRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  
+  @@unique([tenantUserId, roleId])
+  @@index([tenantUserId])
+  @@index([roleId])
+  @@map("tenant_role_assignments")
+}
+
+model TenantSubscription {
+  id                String            @id @default(cuid())
+  tenantId          String
+  planType          PlanType
+  status            SubscriptionStatus @default(ACTIVE)
+  
+  // Billing
+  startDate         DateTime
+  endDate           DateTime?
+  renewalDate       DateTime?
+  billingCycle      BillingCycle      @default(MONTHLY)
+  amount            Decimal           @db.Decimal(10, 2)
+  currency          String            @default("USD") @db.VarChar(3)
+  
+  // Payment
+  paymentMethod     String?           @db.VarChar(100)
+  lastPaymentDate   DateTime?
+  nextPaymentDate   DateTime?
+  
+  // Limits
+  userLimit         Int?
+  storageLimit      BigInt?           // in bytes
+  apiCallLimit      Int?
+  
+  // Features
+  features          Json?             // Available features
+  
+  // Metadata
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  
+  // Relations
+  tenant            Tenant            @relation(fields: [tenantId], references: [id])
+  
+  @@index([tenantId, status])
+  @@index([endDate])
+  @@map("tenant_subscriptions")
+}
+
+model TenantInvitation {
+  id        String           @id @default(cuid())
+  tenantId  String
+  email     String           @db.VarChar(255)
+  role      TenantUserRole   @default(MEMBER)
+  invitedBy Int              // User ID who sent invitation
+  token     String           @unique @default(cuid())
+  status    InvitationStatus @default(PENDING)
+  expiresAt DateTime
+  createdAt DateTime         @default(now())
+  
+  // Relations
+  tenant    Tenant           @relation(fields: [tenantId], references: [id])
+  
+  @@unique([tenantId, email])
+  @@index([token])
+  @@index([expiresAt])
+  @@map("tenant_invitations")
+}
+
+// =============================================================================
+// ENUMS
+// =============================================================================
+
+enum PlanType {
+  FREE
+  BASIC
+  PREMIUM
+  ENTERPRISE
+  CUSTOM
+}
+
+enum TenantUserRole {
+  OWNER
+  ADMIN
+  MANAGER
+  MEMBER
+  VIEWER
+}
+
+enum MembershipStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  PENDING
+  SUSPENDED
+}
+
+enum BillingCycle {
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  CANCELLED
+}

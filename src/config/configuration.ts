@@ -58,18 +58,78 @@ const schema = z.object({
   MAX_FILE_SIZE: z.coerce.number().default(10485760), // 10MB
   ALLOWED_FILE_TYPES: z.string().default('image/jpeg,image/png,image/gif,image/webp'),
 
-  // Email Configuration (Optional)
+  // Email/Notification Configuration
+  EMAIL_ENABLED: z.string().default('false').transform(val => val === 'true'),
+  EMAIL_PROVIDER: z.enum(['console', 'smtp', 'ses', 'sendgrid']).default('console'),
+  EMAIL_FROM: z.string().default('noreply@shooterista.com'),
+  EMAIL_REPLY_TO: z.string().optional(),
+  EMAIL_RATE_LIMIT_PER_MINUTE: z.coerce.number().default(60),
+  EMAIL_RATE_LIMIT_PER_HOUR: z.coerce.number().default(1000),
+  EMAIL_RATE_LIMIT_PER_DAY: z.coerce.number().default(10000),
+  EMAIL_VERIFICATION_ENABLED: z.string().default('false').transform(val => val === 'true'),
+  EMAIL_RESET_PASSWORD_ENABLED: z.string().default('false').transform(val => val === 'true'),
+
+  // SMTP Configuration
   SMTP_HOST: z.string().optional(),
-  SMTP_PORT: z.coerce.number().optional(),
+  SMTP_PORT: z.coerce.number().default(587),
   SMTP_SECURE: z.string().default('false').transform(val => val === 'true'),
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
   SMTP_USERNAME: z.string().optional(),
   SMTP_PASSWORD: z.string().optional(),
-  SMTP_FROM: z.string().optional(),
-  EMAIL_ENABLED: z.string().default('false').transform(val => val === 'true'),
-  EMAIL_VERIFICATION_ENABLED: z.string().default('false').transform(val => val === 'true'),
-  EMAIL_RESET_PASSWORD_ENABLED: z.string().default('false').transform(val => val === 'true'),
+  SMTP_TIMEOUT: z.coerce.number().default(30000),
+
+  // AWS SES Configuration
+  SES_REGION: z.string().optional(),
+  SES_ACCESS_KEY_ID: z.string().optional(),
+  SES_SECRET_ACCESS_KEY: z.string().optional(),
+  SES_CONFIGURATION_SET: z.string().optional(),
+
+  // SendGrid Configuration
+  SENDGRID_API_KEY: z.string().optional(),
+  SENDGRID_FROM_EMAIL: z.string().default('noreply@shooterista.com'),
+  SENDGRID_FROM_NAME: z.string().default('Shooterista'),
+
+  // Frontend Configuration
+  FRONTEND_URL: z.string().default('http://localhost:3000'),
+  DEFAULT_LOCALE: z.string().default('en'),
+  SUPPORTED_LOCALES: z.string().default('en'),
+
+  // Tenant Branding Configuration
+  TENANT_BRANDING_ENABLED: z.string().default('false').transform(val => val === 'true'),
+  DEFAULT_LOGO_URL: z.string().optional(),
+  DEFAULT_PRIMARY_COLOR: z.string().default('#3B82F6'),
+  DEFAULT_SECONDARY_COLOR: z.string().default('#1E40AF'),
+  DEFAULT_FONT_FAMILY: z.string().default('Inter, sans-serif'),
+
+  // OTP Configuration
+  OTP_LENGTH: z.coerce.number().default(6),
+  OTP_EXPIRY_MINUTES: z.coerce.number().default(5),
+  OTP_MAX_ATTEMPTS: z.coerce.number().default(3),
+  OTP_COOLDOWN_MINUTES: z.coerce.number().default(1),
+
+  // Security Configuration
+  SECURITY_MAX_FAILED_LOGINS: z.coerce.number().default(5),
+  SECURITY_LOCKOUT_DURATION: z.coerce.number().default(30),
+  SECURITY_SESSION_TIMEOUT: z.coerce.number().default(30),
+  SECURITY_PASSWORD_MIN_AGE: z.coerce.number().default(1),
+  SECURITY_REQUIRE_STRONG_PASSWORDS: z.string().default('true').transform(val => val === 'true'),
+  SECURITY_ENABLE_MFA: z.string().default('true').transform(val => val === 'true'),
+  SECURITY_AUDIT_RETENTION: z.coerce.number().default(90),
+
+  // Rate Limiting Configuration
+  RATE_LIMIT_LOGIN_MAX: z.coerce.number().default(5),
+  RATE_LIMIT_LOGIN_WINDOW: z.coerce.number().default(900000), // 15 minutes
+  RATE_LIMIT_LOGIN_BLOCK: z.coerce.number().default(3600000), // 1 hour
+  RATE_LIMIT_PASSWORD_RESET_MAX: z.coerce.number().default(3),
+  RATE_LIMIT_PASSWORD_RESET_WINDOW: z.coerce.number().default(3600000), // 1 hour
+  RATE_LIMIT_PASSWORD_RESET_BLOCK: z.coerce.number().default(3600000), // 1 hour
+  RATE_LIMIT_EMAIL_VERIFICATION_MAX: z.coerce.number().default(5),
+  RATE_LIMIT_EMAIL_VERIFICATION_WINDOW: z.coerce.number().default(3600000), // 1 hour
+  RATE_LIMIT_EMAIL_VERIFICATION_BLOCK: z.coerce.number().default(3600000), // 1 hour
+  RATE_LIMIT_MFA_MAX: z.coerce.number().default(3),
+  RATE_LIMIT_MFA_WINDOW: z.coerce.number().default(300000), // 5 minutes
+  RATE_LIMIT_MFA_BLOCK: z.coerce.number().default(900000), // 15 minutes
 
   // Development Configuration
   DEBUG: z.string().optional(),
@@ -92,7 +152,7 @@ export default registerAs('app', () => {
     const dbUrls = [config.AUTH_DB_URL, config.ATHLETES_DB_URL, config.COMPETITIONS_DB_URL];
     
     // Check if any database URL still points to localhost (should point to server)
-    const localhostUrls = dbUrls.filter(url => url.includes('localhost'));
+    const localhostUrls = dbUrls.filter(url => typeof url === 'string' && url.includes('localhost'));
     if (localhostUrls.length > 0) {
       console.warn('⚠️  Warning: Database URLs are pointing to localhost in development mode.');
       console.warn('   Consider updating .env.development to use server URLs instead.');
@@ -100,7 +160,7 @@ export default registerAs('app', () => {
     }
     
     // Check if any database URL contains placeholder values
-    const placeholderUrls = dbUrls.filter(url => url.includes('your-server.com'));
+    const placeholderUrls = dbUrls.filter(url => typeof url === 'string' && url.includes('your-server.com'));
     if (placeholderUrls.length > 0) {
       console.warn('⚠️  Warning: Database URLs contain placeholder values (your-server.com).');
       console.warn('   Please update .env.development with actual server URLs.');

@@ -1,17 +1,26 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsEmail, IsString, MinLength, MaxLength, IsOptional, IsBoolean, IsEnum, IsUUID, IsInt, Min, Max } from 'class-validator';
+import { IsEmail, IsString, MinLength, MaxLength, IsOptional, IsBoolean, IsEnum, IsUUID, IsInt, Min, Max, IsIn } from 'class-validator';
 import { MfaType, UserStatus } from './auth.types';
+import { 
+  IsStrongPassword, 
+  IsEmailFormat, 
+  IsUniqueEmailPerTenant, 
+  IsValidTenantId, 
+  IsValidUserType, 
+  IsValidOTP, 
+  IsValidToken, 
+  IsValidDeviceInfo 
+} from '../validators/password.validator';
 
 @InputType()
 export class CreateUserInput {
   @Field()
-  @IsEmail({}, { message: 'Please provide a valid email address' })
+  @IsEmailFormat({ message: 'Please provide a valid email address format' })
+  @IsUniqueEmailPerTenant({ message: 'Email address is already registered for this tenant' })
   email: string;
 
   @Field()
-  @IsString()
-  @MinLength(8, { message: 'Password must be at least 8 characters long' })
-  @MaxLength(128, { message: 'Password must not exceed 128 characters' })
+  @IsStrongPassword({ message: 'Password does not meet security requirements' })
   password: string;
 
   @Field({ nullable: true })
@@ -28,69 +37,124 @@ export class CreateUserInput {
 
   @Field({ nullable: true })
   @IsOptional()
-  @IsString()
+  @IsValidTenantId({ message: 'Tenant ID must be a valid CUID format' })
   tenantId?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsValidUserType({ message: 'User type must be one of: superadmin, admin, athlete' })
+  userType?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  acceptTerms?: boolean;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  acceptPrivacy?: boolean;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(10)
+  termsVersion?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(10)
+  privacyVersion?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsValidDeviceInfo({ message: 'Device information contains invalid content' })
+  deviceInfo?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(45)
+  ipAddress?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  userAgent?: string;
 }
 
 @InputType()
 export class LoginInput {
   @Field()
-  @IsEmail({}, { message: 'Please provide a valid email address' })
+  @IsEmailFormat({ message: 'Please provide a valid email address format' })
   email: string;
 
   @Field()
   @IsString()
+  @MinLength(1, { message: 'Password is required' })
   password: string;
 
   @Field({ nullable: true })
   @IsOptional()
-  @IsString()
+  @IsValidTenantId({ message: 'Tenant ID must be a valid CUID format' })
   tenantId?: string;
 
   @Field({ nullable: true })
   @IsOptional()
-  @IsString()
+  @IsValidDeviceInfo({ message: 'Device information contains invalid content' })
   deviceInfo?: string;
 
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
+  @MaxLength(45)
   ipAddress?: string;
 
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
+  @MaxLength(500)
   userAgent?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  rememberMe?: boolean;
 }
 
 @InputType()
 export class AdminLoginInput {
   @Field()
-  @IsEmail({}, { message: 'Please provide a valid email address' })
+  @IsEmailFormat({ message: 'Please provide a valid email address format' })
   email: string;
 
   @Field()
   @IsString()
+  @MinLength(1, { message: 'Password is required' })
   password: string;
 
   @Field({ nullable: true })
   @IsOptional()
-  @IsString()
+  @IsValidTenantId({ message: 'Tenant ID must be a valid CUID format' })
   tenantId?: string;
 
   @Field({ nullable: true })
   @IsOptional()
-  @IsString()
+  @IsValidDeviceInfo({ message: 'Device information contains invalid content' })
   deviceInfo?: string;
 
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
+  @MaxLength(45)
   ipAddress?: string;
 
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
+  @MaxLength(500)
   userAgent?: string;
 }
 
@@ -126,7 +190,7 @@ export class LogoutInput {
 @InputType()
 export class MfaVerificationInput {
   @Field()
-  @IsString()
+  @IsValidOTP({ message: 'OTP must be a 6-digit numeric code' })
   token: string;
 
   @Field(() => MfaType)
@@ -136,64 +200,128 @@ export class MfaVerificationInput {
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
+  @MaxLength(20)
   backupCode?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  sessionId?: string;
 }
 
 @InputType()
 export class PasswordResetRequestInput {
   @Field()
-  @IsEmail({}, { message: 'Please provide a valid email address' })
+  @IsEmailFormat({ message: 'Please provide a valid email address format' })
   email: string;
 
   @Field({ nullable: true })
   @IsOptional()
-  @IsString()
+  @IsValidTenantId({ message: 'Tenant ID must be a valid CUID format' })
   tenantId?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(45)
+  ipAddress?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  userAgent?: string;
 }
 
 @InputType()
 export class PasswordResetInput {
   @Field()
-  @IsString()
+  @IsValidToken({ message: 'Token must be a valid 64-character hex string' })
   token: string;
 
   @Field()
-  @IsString()
-  @MinLength(8, { message: 'Password must be at least 8 characters long' })
-  @MaxLength(128, { message: 'Password must not exceed 128 characters' })
+  @IsStrongPassword({ message: 'Password does not meet security requirements' })
   newPassword: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(45)
+  ipAddress?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  userAgent?: string;
 }
 
 @InputType()
 export class ChangePasswordInput {
   @Field()
   @IsString()
+  @MinLength(1, { message: 'Current password is required' })
   currentPassword: string;
 
   @Field()
-  @IsString()
-  @MinLength(8, { message: 'Password must be at least 8 characters long' })
-  @MaxLength(128, { message: 'Password must not exceed 128 characters' })
+  @IsStrongPassword({ message: 'New password does not meet security requirements' })
   newPassword: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(45)
+  ipAddress?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  userAgent?: string;
 }
 
 @InputType()
 export class EmailVerificationInput {
   @Field()
-  @IsString()
+  @IsValidToken({ message: 'Token must be a valid 64-character hex string' })
   token: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(45)
+  ipAddress?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  userAgent?: string;
 }
 
 @InputType()
 export class ResendEmailVerificationInput {
   @Field()
-  @IsEmail({}, { message: 'Please provide a valid email address' })
+  @IsEmailFormat({ message: 'Please provide a valid email address format' })
   email: string;
 
   @Field({ nullable: true })
   @IsOptional()
-  @IsString()
+  @IsValidTenantId({ message: 'Tenant ID must be a valid CUID format' })
   tenantId?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(45)
+  ipAddress?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  userAgent?: string;
 }
 
 @InputType()
@@ -351,4 +479,204 @@ export class SessionListInput {
   @IsInt()
   @Min(0)
   offset?: number = 0;
+}
+
+// New DTOs for enhanced authentication features
+@InputType()
+export class OTPVerificationInput {
+  @Field()
+  @IsValidOTP({ message: 'OTP must be a 6-digit numeric code' })
+  otp: string;
+
+  @Field()
+  @IsString()
+  @MaxLength(100)
+  sessionId: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(45)
+  ipAddress?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  userAgent?: string;
+}
+
+@InputType()
+export class ProfileCompletionInput {
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  firstName?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  lastName?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(20)
+  phone?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(3)
+  country?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  state?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  city?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  timezone?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  title?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  company?: string;
+}
+
+@InputType()
+export class ConsentInput {
+  @Field()
+  @IsBoolean()
+  acceptTerms: boolean;
+
+  @Field()
+  @IsBoolean()
+  acceptPrivacy: boolean;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(10)
+  termsVersion?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(10)
+  privacyVersion?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(45)
+  ipAddress?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  userAgent?: string;
+}
+
+@InputType()
+export class InviteUserInput {
+  @Field()
+  @IsEmailFormat({ message: 'Please provide a valid email address format' })
+  email: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  firstName?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  lastName?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  role?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  message?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(45)
+  ipAddress?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  userAgent?: string;
+}
+
+@InputType()
+export class AcceptInviteInput {
+  @Field()
+  @IsValidToken({ message: 'Invite token must be a valid token' })
+  token: string;
+
+  @Field()
+  @IsStrongPassword({ message: 'Password does not meet security requirements' })
+  password: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  firstName?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(50)
+  lastName?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsValidDeviceInfo({ message: 'Device information contains invalid content' })
+  deviceInfo?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(45)
+  ipAddress?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  userAgent?: string;
 }

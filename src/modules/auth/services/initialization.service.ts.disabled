@@ -1,5 +1,4 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { RbacService } from './rbac.service';
 import { PrismaAuthService } from '../prisma-auth.service';
 import { ConfigService } from '@nestjs/config';
 
@@ -8,7 +7,6 @@ export class InitializationService implements OnModuleInit {
   private readonly logger = new Logger(InitializationService.name);
 
   constructor(
-    private readonly rbacService: RbacService,
     private readonly prismaAuth: PrismaAuthService,
     private readonly configService: ConfigService,
   ) {}
@@ -17,9 +15,6 @@ export class InitializationService implements OnModuleInit {
     this.logger.log('Initializing authentication system...');
     
     try {
-      // Initialize default roles and permissions
-      await this.initializeDefaultRoles();
-      
       // Create super admin user if it doesn't exist
       await this.createSuperAdminUser();
       
@@ -29,13 +24,9 @@ export class InitializationService implements OnModuleInit {
       this.logger.log('Authentication system initialized successfully');
     } catch (error) {
       this.logger.error('Failed to initialize authentication system', error);
-      throw error;
+      // Don't throw error to prevent application startup failure
+      this.logger.warn('Continuing without full initialization');
     }
-  }
-
-  private async initializeDefaultRoles(): Promise<void> {
-    this.logger.log('Initializing default roles and permissions...');
-    await this.rbacService.initializeDefaultRoles();
   }
 
   private async createSuperAdminUser(): Promise<void> {
@@ -61,19 +52,8 @@ export class InitializationService implements OnModuleInit {
         password: superAdminPassword,
         firstName: 'Super',
         lastName: 'Admin',
-      });
-
-      // Get super admin role
-      const superAdminRole = await this.prismaAuth.findRoleByName('super_admin');
-      if (!superAdminRole) {
-        this.logger.error('Super admin role not found');
-        return;
-      }
-
-      // Assign super admin role
-      await this.prismaAuth.assignRoleToUser({
-        userId: user.id,
-        roleId: superAdminRole.id,
+        tenantId: 'default',
+        userType: 'SUPERADMIN' as any,
       });
 
       // Mark email as verified and activate account
@@ -90,7 +70,11 @@ export class InitializationService implements OnModuleInit {
 
   private async cleanupExpiredData(): Promise<void> {
     this.logger.log('Cleaning up expired data...');
-    await this.prismaAuth.cleanupExpiredData();
-    this.logger.log('Expired data cleanup completed');
+    try {
+      await this.prismaAuth.cleanupExpiredData();
+      this.logger.log('Expired data cleanup completed');
+    } catch (error) {
+      this.logger.warn('Failed to cleanup expired data', error);
+    }
   }
 }
