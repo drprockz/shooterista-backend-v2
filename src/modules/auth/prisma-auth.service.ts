@@ -1,6 +1,7 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient as AuthPrismaClient } from '.prisma/auth';
 import { ConfigService } from '@nestjs/config';
+import { UserStatus, AuditAction, TokenType } from './dto/auth.types';
 
 @Injectable()
 export class PrismaAuthService extends AuthPrismaClient implements OnModuleInit {
@@ -23,21 +24,115 @@ export class PrismaAuthService extends AuthPrismaClient implements OnModuleInit 
   }
 
   // User operations
-  async findUserByEmail(email: string) {
-    return this.user.findUnique({
-      where: { email },
+  async findUserByEmail(email: string, tenantId?: string) {
+    return this.user.findFirst({
+      where: { 
+        email,
+        ...(tenantId && { tenantId }),
+        isActive: true,
+      },
+      include: {
+        userRoles: {
+          include: {
+            role: {
+              include: {
+                rolePermissions: {
+                  include: {
+                    permission: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
   }
 
-  async findUserById(id: number) {
-    return this.user.findUnique({
-      where: { id },
+  async findUserById(id: number, tenantId?: string) {
+    return this.user.findFirst({
+      where: { 
+        id,
+        ...(tenantId && { tenantId }),
+        isActive: true,
+      },
+      include: {
+        userRoles: {
+          include: {
+            role: {
+              include: {
+                rolePermissions: {
+                  include: {
+                    permission: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
   }
 
-  async createUser(data: { email: string; password: string }) {
+  async createUser(data: { 
+    email: string; 
+    password: string; 
+    firstName?: string; 
+    lastName?: string; 
+    tenantId?: string;
+  }) {
     return this.user.create({
+      data: {
+        ...data,
+        isActive: true, // Users are active by default, email verification is separate
+      },
+      include: {
+        userRoles: {
+          include: {
+            role: {
+              include: {
+                rolePermissions: {
+                  include: {
+                    permission: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async updateUser(id: number, data: Partial<{
+    firstName: string;
+    lastName: string;
+    isEmailVerified: boolean;
+    isMfaEnabled: boolean;
+    mfaSecret: string;
+    lastLoginAt: Date;
+    passwordChangedAt: Date;
+    status: UserStatus;
+    password: string;
+  }>) {
+    return this.user.update({
+      where: { id },
       data,
+      include: {
+        userRoles: {
+          include: {
+            role: {
+              include: {
+                rolePermissions: {
+                  include: {
+                    permission: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
   }
 
@@ -93,5 +188,426 @@ export class PrismaAuthService extends AuthPrismaClient implements OnModuleInit 
         },
       },
     });
+  }
+
+  // Session operations
+  async createSession(data: {
+    userId: number;
+    deviceInfo?: string;
+    ipAddress?: string;
+    userAgent?: string;
+    expiresAt: Date;
+  }) {
+    return this.session.create({
+      data,
+    });
+  }
+
+  async findSession(sessionId: string) {
+    return this.session.findUnique({
+      where: { id: sessionId },
+      include: {
+        user: {
+          include: {
+            userRoles: {
+              include: {
+                role: {
+                  include: {
+                    rolePermissions: {
+                      include: {
+                        permission: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async findUserSessions(userId: number, activeOnly: boolean = false) {
+    return this.session.findMany({
+      where: {
+        userId,
+        ...(activeOnly && { isActive: true }),
+        expiresAt: {
+          gt: new Date(),
+        },
+      },
+      orderBy: { lastUsedAt: 'desc' },
+    });
+  }
+
+  async updateSession(sessionId: string, data: { lastUsedAt?: Date; isActive?: boolean }) {
+    return this.session.update({
+      where: { id: sessionId },
+      data,
+    });
+  }
+
+  async revokeSession(sessionId: string) {
+    return this.session.update({
+      where: { id: sessionId },
+      data: { isActive: false },
+    });
+  }
+
+  async revokeAllUserSessions(userId: number) {
+    return this.session.updateMany({
+      where: { userId, isActive: true },
+      data: { isActive: false },
+    });
+  }
+
+  async cleanupExpiredSessions() {
+    return this.session.deleteMany({
+      where: {
+        expiresAt: {
+          lt: new Date(),
+        },
+      },
+    });
+  }
+
+  // Role and Permission operations
+  async findRoleByName(name: string, tenantId?: string) {
+    return this.role.findFirst({
+      where: {
+        name,
+        ...(tenantId && { tenantId }),
+        isActive: true,
+      },
+      include: {
+        rolePermissions: {
+          include: {
+            permission: true,
+          },
+        },
+      },
+    });
+  }
+
+  async findRoleById(id: number) {
+    return this.role.findUnique({
+      where: { id },
+      include: {
+        rolePermissions: {
+          include: {
+            permission: true,
+          },
+        },
+      },
+    });
+  }
+
+  async createRole(data: {
+    name: string;
+    description?: string;
+    tenantId?: string;
+  }) {
+    return this.role.create({
+      data,
+    });
+  }
+
+  async assignRoleToUser(data: {
+    userId: number;
+    roleId: number;
+    tenantId?: string;
+  }) {
+    return this.userRole.create({
+      data,
+    });
+  }
+
+  async removeRoleFromUser(data: {
+    userId: number;
+    roleId: number;
+    tenantId?: string;
+  }) {
+    return this.userRole.deleteMany({
+      where: data,
+    });
+  }
+
+  async getUserRoles(userId: number, tenantId?: string) {
+    return this.userRole.findMany({
+      where: {
+        userId,
+        ...(tenantId && { tenantId }),
+      },
+      include: {
+        role: {
+          include: {
+            rolePermissions: {
+              include: {
+                permission: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async getUserPermissions(userId: number, tenantId?: string) {
+    const userRoles = await this.getUserRoles(userId, tenantId);
+    const permissions = new Map();
+    
+    userRoles.forEach(userRole => {
+      userRole.role.rolePermissions.forEach(rolePermission => {
+        const permission = rolePermission.permission;
+        if (permission.isActive) {
+          permissions.set(permission.id, permission);
+        }
+      });
+    });
+
+    return Array.from(permissions.values());
+  }
+
+  async checkUserPermission(userId: number, resource: string, action: string, tenantId?: string) {
+    const permissions = await this.getUserPermissions(userId, tenantId);
+    return permissions.some(permission => 
+      permission.resource === resource && 
+      permission.action === action &&
+      permission.isActive
+    );
+  }
+
+  // Password reset operations
+  async createPasswordResetToken(data: {
+    userId: number;
+    token: string;
+    expiresAt: Date;
+  }) {
+    return this.passwordResetToken.create({
+      data,
+    });
+  }
+
+  async findPasswordResetToken(token: string) {
+    return this.passwordResetToken.findFirst({
+      where: {
+        token,
+        expiresAt: {
+          gt: new Date(),
+        },
+        usedAt: null,
+      },
+      include: {
+        user: true,
+      },
+    });
+  }
+
+  async markPasswordResetTokenUsed(token: string) {
+    return this.passwordResetToken.updateMany({
+      where: { token },
+      data: { usedAt: new Date() },
+    });
+  }
+
+  async cleanupExpiredPasswordResetTokens() {
+    return this.passwordResetToken.deleteMany({
+      where: {
+        expiresAt: {
+          lt: new Date(),
+        },
+      },
+    });
+  }
+
+  // Email verification operations
+  async createEmailVerificationToken(data: {
+    userId: number;
+    token: string;
+    expiresAt: Date;
+  }) {
+    return this.emailVerificationToken.create({
+      data,
+    });
+  }
+
+  async findEmailVerificationToken(token: string) {
+    return this.emailVerificationToken.findFirst({
+      where: {
+        token,
+        expiresAt: {
+          gt: new Date(),
+        },
+        usedAt: null,
+      },
+      include: {
+        user: true,
+      },
+    });
+  }
+
+  async markEmailVerificationTokenUsed(token: string) {
+    return this.emailVerificationToken.updateMany({
+      where: { token },
+      data: { usedAt: new Date() },
+    });
+  }
+
+  async cleanupExpiredEmailVerificationTokens() {
+    return this.emailVerificationToken.deleteMany({
+      where: {
+        expiresAt: {
+          lt: new Date(),
+        },
+      },
+    });
+  }
+
+  // Token blacklisting
+  async blacklistToken(data: {
+    token: string;
+    reason: string;
+    expiresAt: Date;
+  }) {
+    return this.blacklistedToken.create({
+      data,
+    });
+  }
+
+  async isTokenBlacklisted(token: string) {
+    const blacklisted = await this.blacklistedToken.findFirst({
+      where: {
+        token,
+        expiresAt: {
+          gt: new Date(),
+        },
+      },
+    });
+    return !!blacklisted;
+  }
+
+  async cleanupExpiredBlacklistedTokens() {
+    return this.blacklistedToken.deleteMany({
+      where: {
+        expiresAt: {
+          lt: new Date(),
+        },
+      },
+    });
+  }
+
+  // Rate limiting
+  async getRateLimit(key: string) {
+    return this.rateLimit.findUnique({
+      where: { key },
+    });
+  }
+
+  async incrementRateLimit(key: string, windowStart: Date) {
+    return this.rateLimit.upsert({
+      where: { key },
+      update: {
+        attempts: { increment: 1 },
+        updatedAt: new Date(),
+      },
+      create: {
+        key,
+        attempts: 1,
+        windowStart,
+      },
+    });
+  }
+
+  async resetRateLimit(key: string) {
+    return this.rateLimit.deleteMany({
+      where: { key },
+    });
+  }
+
+  async cleanupExpiredRateLimits() {
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    return this.rateLimit.deleteMany({
+      where: {
+        windowStart: {
+          lt: oneHourAgo,
+        },
+      },
+    });
+  }
+
+  // Audit logging
+  async createAuditLog(data: {
+    userId?: number;
+    action: AuditAction;
+    resource?: string;
+    resourceId?: string;
+    ipAddress?: string;
+    userAgent?: string;
+    metadata?: any;
+    success?: boolean;
+    tenantId?: string;
+  }) {
+    return this.auditLog.create({
+      data: {
+        ...data,
+        metadata: data.metadata ? JSON.stringify(data.metadata) : null,
+      },
+    });
+  }
+
+  async getAuditLogs(filters: {
+    userId?: number;
+    action?: string;
+    tenantId?: string;
+    startDate?: Date;
+    endDate?: Date;
+    limit?: number;
+    offset?: number;
+  }) {
+    const where: any = {};
+    
+    if (filters.userId) where.userId = filters.userId;
+    if (filters.action) where.action = filters.action;
+    if (filters.tenantId) where.tenantId = filters.tenantId;
+    if (filters.startDate || filters.endDate) {
+      where.createdAt = {};
+      if (filters.startDate) where.createdAt.gte = filters.startDate;
+      if (filters.endDate) where.createdAt.lte = filters.endDate;
+    }
+
+    const [logs, totalCount] = await Promise.all([
+      this.auditLog.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        take: filters.limit || 50,
+        skip: filters.offset || 0,
+        include: {
+          user: {
+            select: {
+              id: true,
+              email: true,
+              firstName: true,
+              lastName: true,
+            },
+          },
+        },
+      }),
+      this.auditLog.count({ where }),
+    ]);
+
+    return { logs, totalCount };
+  }
+
+  // Cleanup operations
+  async cleanupExpiredData() {
+    await Promise.all([
+      this.cleanupExpiredTokens(),
+      this.cleanupExpiredSessions(),
+      this.cleanupExpiredPasswordResetTokens(),
+      this.cleanupExpiredEmailVerificationTokens(),
+      this.cleanupExpiredBlacklistedTokens(),
+      this.cleanupExpiredRateLimits(),
+    ]);
   }
 }

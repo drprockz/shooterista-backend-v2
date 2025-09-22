@@ -1,0 +1,325 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input AdminLoginInput {
+  deviceInfo: String
+  email: String!
+  ipAddress: String
+  password: String!
+  tenantId: String
+  userAgent: String
+}
+
+enum AuditAction {
+  ACCOUNT_LOCKED
+  ACCOUNT_UNLOCKED
+  EMAIL_VERIFICATION_COMPLETE
+  EMAIL_VERIFICATION_REQUEST
+  LOGIN
+  LOGIN_FAILED
+  LOGOUT
+  MFA_DISABLED
+  MFA_ENABLED
+  MFA_VERIFICATION
+  MFA_VERIFICATION_FAILED
+  PASSWORD_CHANGE
+  PASSWORD_RESET_COMPLETE
+  PASSWORD_RESET_REQUEST
+  PERMISSION_GRANTED
+  PERMISSION_REVOKED
+  ROLE_ASSIGNED
+  ROLE_REMOVED
+  SESSION_CREATED
+  SESSION_REVOKED
+}
+
+type AuditLog {
+  action: AuditAction!
+  createdAt: DateTime!
+  id: String!
+  ipAddress: String
+  metadata: String
+  resource: String
+  resourceId: String
+  success: Boolean!
+  tenantId: String
+  userAgent: String
+  userId: String
+}
+
+type AuditLogResponse {
+  logs: [AuditLog!]!
+  totalCount: Int!
+}
+
+input AuditLogsInput {
+  action: String
+  endDate: String
+  limit: Float = 50
+  offset: Float = 0
+  startDate: String
+  tenantId: String
+  userId: String
+}
+
+type AuthPayload {
+  accessToken: String!
+  expiresIn: Int!
+  mfaRequired: Boolean
+  mfaType: String
+  refreshToken: String!
+  user: User!
+}
+
+input ChangePasswordInput {
+  currentPassword: String!
+  newPassword: String!
+}
+
+input CreateUserInput {
+  email: String!
+  firstName: String
+  lastName: String
+  password: String!
+  tenantId: String
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+input EmailVerificationInput {
+  token: String!
+}
+
+type EmailVerificationResponse {
+  expiresAt: DateTime
+  message: String!
+  success: Boolean!
+}
+
+input LoginInput {
+  deviceInfo: String
+  email: String!
+  ipAddress: String
+  password: String!
+  tenantId: String
+  userAgent: String
+}
+
+input LogoutInput {
+  refreshToken: String!
+}
+
+input MfaDisableInput {
+  password: String!
+  token: String!
+  type: MfaType!
+}
+
+type MfaSetup {
+  backupCodes: [String!]!
+  qrCodeUrl: String!
+  secret: String!
+}
+
+input MfaSetupInput {
+  type: MfaType!
+}
+
+enum MfaType {
+  EMAIL
+  TOTP
+}
+
+input MfaVerificationInput {
+  backupCode: String
+  token: String!
+  type: MfaType!
+}
+
+type Mutation {
+  assignRole(input: RoleAssignmentInput!): Boolean!
+  changePassword(input: ChangePasswordInput!): Boolean!
+  createRoleBundle(description: String!, name: String!, permissions: [String!]!, tenantId: String): Role!
+  disableMfa(input: MfaDisableInput!): Boolean!
+  enableMfa(input: MfaVerificationInput!): Boolean!
+  login(input: LoginInput!): AuthPayload!
+  loginAsAdmin(input: AdminLoginInput!): AuthPayload!
+  logout(input: LogoutInput!): Boolean!
+  logoutAll: Boolean!
+  refreshToken(input: RefreshTokenInput!): TokenRefreshPayload!
+  register(input: CreateUserInput!): AuthPayload!
+  removeRole(input: RoleRemovalInput!): Boolean!
+  requestPasswordReset(input: PasswordResetRequestInput!): PasswordResetResponse!
+  resendEmailVerification(input: ResendEmailVerificationInput!): EmailVerificationResponse!
+  resetPassword(input: PasswordResetInput!): Boolean!
+  revokeSession(input: SessionRevokeInput!): Boolean!
+  setupMfa(input: MfaSetupInput!): MfaSetup!
+  updateRoleBundle(description: String, name: String, permissions: [String!], roleId: String!): Role!
+  updateUser(input: UserUpdateInput!): User!
+  verifyEmail(input: EmailVerificationInput!): Boolean!
+  verifyMfa(input: MfaVerificationInput!): AuthPayload!
+}
+
+input PasswordResetInput {
+  newPassword: String!
+  token: String!
+}
+
+input PasswordResetRequestInput {
+  email: String!
+  tenantId: String
+}
+
+type PasswordResetResponse {
+  expiresAt: DateTime
+  message: String!
+  success: Boolean!
+}
+
+type Permission {
+  action: String!
+  createdAt: DateTime!
+  description: String
+  id: String!
+  isActive: Boolean!
+  name: String!
+  resource: String!
+  updatedAt: DateTime!
+}
+
+input PermissionCheckInput {
+  action: String!
+  resource: String!
+  tenantId: String
+}
+
+type PermissionCheckResponse {
+  hasPermission: Boolean!
+  userPermissions: [Permission!]!
+  userRoles: [Role!]!
+}
+
+type Query {
+  checkPermission(input: PermissionCheckInput!): PermissionCheckResponse!
+  getAuditLogs(input: AuditLogsInput!): AuditLogResponse!
+  getMyPermissions: [Permission!]!
+  getPermissions: [Permission!]!
+  getRoles: [Role!]!
+  getSessions(input: SessionListInput!): SessionListResponse!
+  hasPermission(action: String!, resource: String!): Boolean!
+  health: String!
+  hello: String!
+  initializeDefaultRoles: String!
+  me: User!
+  test: String!
+}
+
+input RefreshTokenInput {
+  deviceInfo: String
+  ipAddress: String
+  refreshToken: String!
+  userAgent: String
+}
+
+input ResendEmailVerificationInput {
+  email: String!
+  tenantId: String
+}
+
+type Role {
+  createdAt: DateTime!
+  description: String
+  id: String!
+  isActive: Boolean!
+  name: String!
+  permissions: [Permission!]
+  tenantId: String
+  updatedAt: DateTime!
+}
+
+input RoleAssignmentInput {
+  roleId: String!
+  tenantId: String
+  userId: String!
+}
+
+input RoleRemovalInput {
+  roleId: String!
+  tenantId: String
+  userId: String!
+}
+
+type Session {
+  createdAt: DateTime!
+  deviceInfo: String
+  expiresAt: DateTime!
+  id: String!
+  ipAddress: String
+  isActive: Boolean!
+  lastUsedAt: DateTime!
+  status: SessionStatus!
+  userAgent: String
+  userId: String!
+}
+
+input SessionListInput {
+  activeOnly: Boolean = false
+  limit: Float = 20
+  offset: Float = 0
+}
+
+type SessionListResponse {
+  activeCount: Int!
+  sessions: [Session!]!
+  totalCount: Int!
+}
+
+input SessionRevokeInput {
+  sessionId: String!
+}
+
+enum SessionStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+type TokenRefreshPayload {
+  accessToken: String!
+  expiresIn: Int!
+  refreshToken: String!
+}
+
+type User {
+  createdAt: DateTime!
+  email: String!
+  firstName: String
+  id: String!
+  isEmailVerified: Boolean!
+  isMfaEnabled: Boolean!
+  lastLoginAt: DateTime
+  lastName: String
+  passwordChangedAt: DateTime
+  permissions: [Permission!]
+  roles: [Role!]
+  status: UserStatus!
+  tenantId: String
+  updatedAt: DateTime!
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  PENDING_VERIFICATION
+  SUSPENDED
+}
+
+input UserUpdateInput {
+  firstName: String
+  lastName: String
+  status: UserStatus
+}

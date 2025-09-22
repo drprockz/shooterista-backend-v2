@@ -9,15 +9,32 @@ generator client {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                Int       @id @default(autoincrement())
+  email             String    @unique
+  password          String
+  firstName         String?
+  lastName          String?
+  isEmailVerified   Boolean   @default(false)
+  isMfaEnabled      Boolean   @default(false)
+  mfaSecret         String?
+  lastLoginAt       DateTime?
+  passwordChangedAt DateTime?
+  isActive          Boolean   @default(true)
+  tenantId          String?   // For multi-tenant support
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
   
   // Relations
-  refreshTokens RefreshToken[]
+  refreshTokens     RefreshToken[]
+  sessions          Session[]
+  userRoles         UserRole[]
+  auditLogs         AuditLog[]
+  passwordResetTokens PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
   
+  @@index([email])
+  @@index([tenantId])
+  @@index([isActive])
   @@map("users")
 }
 
@@ -35,4 +52,173 @@ model RefreshToken {
   @@index([userId])
   @@index([expiresAt])
   @@map("refresh_tokens")
+}
+
+model Session {
+  id          String    @id @default(cuid())
+  userId      Int
+  deviceInfo  String?   // Device fingerprint
+  ipAddress   String?
+  userAgent   String?
+  isActive    Boolean   @default(true)
+  lastUsedAt  DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime
+  
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([isActive])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model Role {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  isActive    Boolean   @default(true)
+  tenantId    String?   // For multi-tenant support
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  userRoles   UserRole[]
+  rolePermissions RolePermission[]
+  
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("roles")
+}
+
+model Permission {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  resource    String    // e.g., 'user', 'competition', 'athlete'
+  action      String    // e.g., 'create', 'read', 'update', 'delete'
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relations
+  rolePermissions RolePermission[]
+  
+  @@index([resource, action])
+  @@index([isActive])
+  @@map("permissions")
+}
+
+model UserRole {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  roleId    Int
+  tenantId  String?  // For multi-tenant support
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, roleId, tenantId])
+  @@index([userId])
+  @@index([roleId])
+  @@index([tenantId])
+  @@map("user_roles")
+}
+
+model RolePermission {
+  id           Int      @id @default(autoincrement())
+  roleId       Int
+  permissionId Int
+  createdAt    DateTime @default(now())
+  
+  // Relations
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+  @@map("role_permissions")
+}
+
+model AuditLog {
+  id          Int       @id @default(autoincrement())
+  userId      Int?
+  action      String    // e.g., 'login', 'logout', 'password_change', 'mfa_enabled'
+  resource    String?   // e.g., 'user', 'session'
+  resourceId  String?   // ID of the affected resource
+  ipAddress   String?
+  userAgent   String?
+  metadata    Json?     // Additional context data
+  success     Boolean   @default(true)
+  tenantId    String?   // For multi-tenant support
+  createdAt   DateTime  @default(now())
+  
+  // Relations
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  @@index([userId])
+  @@index([action])
+  @@index([tenantId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}
+
+model EmailVerificationToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+  
+  // Relations
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("email_verification_tokens")
+}
+
+model BlacklistedToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  reason    String   // e.g., 'logout', 'password_change', 'security_breach'
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  
+  @@index([expiresAt])
+  @@map("blacklisted_tokens")
+}
+
+model RateLimit {
+  id        Int      @id @default(autoincrement())
+  key       String   // e.g., 'login:user:123' or 'login:ip:192.168.1.1'
+  attempts  Int      @default(1)
+  windowStart DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([key])
+  @@index([windowStart])
+  @@map("rate_limits")
 }

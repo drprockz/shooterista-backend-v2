@@ -15,8 +15,18 @@ describe('AuthService', () => {
     id: 1,
     email: 'test@example.com',
     password: 'hashedpassword',
+    firstName: 'Test',
+    lastName: 'User',
+    isEmailVerified: false,
+    isMfaEnabled: false,
+    mfaSecret: null,
+    lastLoginAt: null,
+    passwordChangedAt: new Date(),
+    isActive: true,
+    tenantId: 'test-tenant',
     createdAt: new Date(),
     updatedAt: new Date(),
+    userRoles: [],
   };
 
   beforeEach(async () => {

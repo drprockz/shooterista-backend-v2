@@ -20,10 +20,11 @@ import { RateLimitInterceptor } from './common/interceptors/rate-limit.intercept
     S3Module,
   ],
   providers: [
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: RateLimitInterceptor,
-    },
+    // Temporarily disabled due to Redis connection issues
+    // {
+    //   provide: APP_INTERCEPTOR,
+    //   useClass: RateLimitInterceptor,
+    // },
   ],
 })
 export class AppModule {}

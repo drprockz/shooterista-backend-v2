@@ -1,0 +1,325 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type User {
+  id: String!
+  email: String!
+  firstName: String
+  lastName: String
+  isEmailVerified: Boolean!
+  isMfaEnabled: Boolean!
+  lastLoginAt: DateTime
+  passwordChangedAt: DateTime
+  status: UserStatus!
+  tenantId: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  roles: [Role!]
+  permissions: [Permission!]
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_VERIFICATION
+}
+
+type Role {
+  id: String!
+  name: String!
+  description: String
+  isActive: Boolean!
+  tenantId: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  permissions: [Permission!]
+}
+
+type Permission {
+  id: String!
+  name: String!
+  description: String
+  resource: String!
+  action: String!
+  isActive: Boolean!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Session {
+  id: String!
+  userId: String!
+  deviceInfo: String
+  ipAddress: String
+  userAgent: String
+  isActive: Boolean!
+  lastUsedAt: DateTime!
+  createdAt: DateTime!
+  expiresAt: DateTime!
+  status: SessionStatus!
+}
+
+enum SessionStatus {
+  ACTIVE
+  EXPIRED
+  REVOKED
+}
+
+type AuditLog {
+  id: String!
+  userId: String
+  action: AuditAction!
+  resource: String
+  resourceId: String
+  ipAddress: String
+  userAgent: String
+  metadata: String
+  success: Boolean!
+  tenantId: String
+  createdAt: DateTime!
+}
+
+enum AuditAction {
+  LOGIN
+  LOGOUT
+  LOGIN_FAILED
+  PASSWORD_CHANGE
+  PASSWORD_RESET_REQUEST
+  PASSWORD_RESET_COMPLETE
+  EMAIL_VERIFICATION_REQUEST
+  EMAIL_VERIFICATION_COMPLETE
+  MFA_ENABLED
+  MFA_DISABLED
+  MFA_VERIFICATION
+  MFA_VERIFICATION_FAILED
+  SESSION_CREATED
+  SESSION_REVOKED
+  ROLE_ASSIGNED
+  ROLE_REMOVED
+  PERMISSION_GRANTED
+  PERMISSION_REVOKED
+  ACCOUNT_LOCKED
+  ACCOUNT_UNLOCKED
+}
+
+type AuthPayload {
+  user: User!
+  accessToken: String!
+  refreshToken: String!
+  expiresIn: Int!
+  mfaRequired: Boolean
+  mfaType: String
+}
+
+type TokenRefreshPayload {
+  accessToken: String!
+  refreshToken: String!
+  expiresIn: Int!
+}
+
+type MfaSetup {
+  secret: String!
+  qrCodeUrl: String!
+  backupCodes: [String!]!
+}
+
+type PasswordResetResponse {
+  success: Boolean!
+  message: String!
+  expiresAt: DateTime
+}
+
+type EmailVerificationResponse {
+  success: Boolean!
+  message: String!
+  expiresAt: DateTime
+}
+
+type SessionListResponse {
+  sessions: [Session!]!
+  totalCount: Int!
+  activeCount: Int!
+}
+
+type AuditLogResponse {
+  logs: [AuditLog!]!
+  totalCount: Int!
+}
+
+type PermissionCheckResponse {
+  hasPermission: Boolean!
+  userPermissions: [Permission!]!
+  userRoles: [Role!]!
+}
+
+type Query {
+  test: String!
+  hello: String!
+  health: String!
+  me: User!
+  getSessions(input: SessionListInput!): SessionListResponse!
+  checkPermission(input: PermissionCheckInput!): PermissionCheckResponse!
+  getAuditLogs(input: AuditLogsInput!): AuditLogResponse!
+  getRoles: [Role!]!
+  getPermissions: [Permission!]!
+  getMyPermissions: [Permission!]!
+  hasPermission(resource: String!, action: String!): Boolean!
+  initializeDefaultRoles: String!
+}
+
+input SessionListInput {
+  activeOnly: Boolean = false
+  limit: Float = 20
+  offset: Float = 0
+}
+
+input PermissionCheckInput {
+  resource: String!
+  action: String!
+  tenantId: String
+}
+
+input AuditLogsInput {
+  userId: String
+  action: String
+  tenantId: String
+  limit: Float = 50
+  offset: Float = 0
+  startDate: String
+  endDate: String
+}
+
+type Mutation {
+  register(input: CreateUserInput!): AuthPayload!
+  login(input: LoginInput!): AuthPayload!
+  loginAsAdmin(input: AdminLoginInput!): AuthPayload!
+  verifyMfa(input: MfaVerificationInput!): AuthPayload!
+  refreshToken(input: RefreshTokenInput!): TokenRefreshPayload!
+  logout(input: LogoutInput!): Boolean!
+  logoutAll: Boolean!
+  requestPasswordReset(input: PasswordResetRequestInput!): PasswordResetResponse!
+  resetPassword(input: PasswordResetInput!): Boolean!
+  changePassword(input: ChangePasswordInput!): Boolean!
+  verifyEmail(input: EmailVerificationInput!): Boolean!
+  resendEmailVerification(input: ResendEmailVerificationInput!): EmailVerificationResponse!
+  setupMfa(input: MfaSetupInput!): MfaSetup!
+  enableMfa(input: MfaVerificationInput!): Boolean!
+  disableMfa(input: MfaDisableInput!): Boolean!
+  revokeSession(input: SessionRevokeInput!): Boolean!
+  assignRole(input: RoleAssignmentInput!): Boolean!
+  removeRole(input: RoleRemovalInput!): Boolean!
+  updateUser(input: UserUpdateInput!): User!
+  createRoleBundle(name: String!, description: String!, permissions: [String!]!, tenantId: String): Role!
+  updateRoleBundle(roleId: String!, name: String, description: String, permissions: [String!]): Role!
+}
+
+input CreateUserInput {
+  email: String!
+  password: String!
+  firstName: String
+  lastName: String
+  tenantId: String
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+  tenantId: String
+  deviceInfo: String
+  ipAddress: String
+  userAgent: String
+}
+
+input AdminLoginInput {
+  email: String!
+  password: String!
+  tenantId: String
+  deviceInfo: String
+  ipAddress: String
+  userAgent: String
+}
+
+input MfaVerificationInput {
+  token: String!
+  type: MfaType!
+  backupCode: String
+}
+
+enum MfaType {
+  EMAIL
+  TOTP
+}
+
+input RefreshTokenInput {
+  refreshToken: String!
+  deviceInfo: String
+  ipAddress: String
+  userAgent: String
+}
+
+input LogoutInput {
+  refreshToken: String!
+}
+
+input PasswordResetRequestInput {
+  email: String!
+  tenantId: String
+}
+
+input PasswordResetInput {
+  token: String!
+  newPassword: String!
+}
+
+input ChangePasswordInput {
+  currentPassword: String!
+  newPassword: String!
+}
+
+input EmailVerificationInput {
+  token: String!
+}
+
+input ResendEmailVerificationInput {
+  email: String!
+  tenantId: String
+}
+
+input MfaSetupInput {
+  type: MfaType!
+}
+
+input MfaDisableInput {
+  password: String!
+  token: String!
+  type: MfaType!
+}
+
+input SessionRevokeInput {
+  sessionId: String!
+}
+
+input RoleAssignmentInput {
+  userId: String!
+  roleId: String!
+  tenantId: String
+}
+
+input RoleRemovalInput {
+  userId: String!
+  roleId: String!
+  tenantId: String
+}
+
+input UserUpdateInput {
+  firstName: String
+  lastName: String
+  status: UserStatus
+}
