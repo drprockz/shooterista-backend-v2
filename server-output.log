@@ -1,0 +1,764 @@
+
+> shooterista-backend@1.0.0 start:dev
+> nest start --watch
+
+
+ Info  Webpack is building your sources...
+
+webpack 5.97.1 compiled [1m[32msuccessfully[39m[22m in 710 ms
+Type-checking in progress...
+📁 Loading environment from: .env.development
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [ProcessSafetyService] Initializing process safety nets
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [ProcessSafetyService] Process safety nets initialized successfully
+🚀 Starting Shooterista Backend
+📁 Environment: development
+📄 Config file: .env.development
+⏰ Started at: 2025-09-29T10:32:06.724Z
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [NestFactory] Starting Nest application... +12ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] AppModule dependencies initialized +18ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] AppConfigModule dependencies initialized +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] BullInfraModule dependencies initialized +4ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] S3Module dependencies initialized +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] ConfigHostModule dependencies initialized +4ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] ConfigModule dependencies initialized +5ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] ConfigModule dependencies initialized +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] TerminusModule dependencies initialized +0ms
+📧 [PROVIDER FACTORY] Selected email provider: smtp
+📧 [PROVIDER FACTORY] Creating SmtpEmailAdapter
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] TenantContextModule dependencies initialized +12ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] JwtModule dependencies initialized +15ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] NotificationsModule dependencies initialized +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] GraphQLSchemaBuilderModule dependencies initialized +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] HealthModule dependencies initialized +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] TenantModule dependencies initialized +2ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] UserModule dependencies initialized +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] GraphQLModule dependencies initialized +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] GqlModule dependencies initialized +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [InstanceLoader] AuthModule dependencies initialized +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RoutesResolver] AuthController {/auth}: +46ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/auth/register, POST} route +2ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/auth/login, POST} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/auth/refresh, POST} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/auth/logout, POST} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/auth/logout-all, POST} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/auth/me, GET} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/auth/password/change, POST} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/auth/password/reset/request, POST} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/auth/password/reset, POST} route +1ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/auth/email/verify, POST} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/auth/email/resend, POST} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/auth/mfa/setup, POST} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/auth/mfa/enable, POST} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/auth/mfa/disable, POST} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RoutesResolver] TenantController {/tenant}: +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/tenant, POST} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/tenant/:id, GET} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/tenant/slug/:slug, GET} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/tenant/:id, PUT} route +1ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/tenant/invite, POST} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/tenant/my/tenants, GET} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/tenant/:id/users, GET} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/tenant/switch, POST} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RoutesResolver] UserController {/user}: +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/user/profile, GET} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/user/profile, PUT} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/user/activities, GET} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/user/notifications, GET} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/user/preferences, GET} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RoutesResolver] HealthController {/health}: +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/health, GET} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/health/ready, GET} route +0ms
+[Nest] 62163  - 09/29/2025, 4:02:06 PM     LOG [RouterExplorer] Mapped {/health/live, GET} route +0ms
+[2025-09-29 16:02:06.841 +0530] [32mINFO[39m (62163): [36m📚 Swagger documentation available at: http://localhost:5001/api/docs[39m
+No errors found.
+✅ Auth database connected successfully
+[Nest] 62163  - 09/29/2025, 4:02:09 PM     LOG [GraphQLModule] Mapped {/graphql, POST} route +2974ms
+[Nest] 62163  - 09/29/2025, 4:02:09 PM     LOG [NestApplication] Nest application successfully started +1ms
+[2025-09-29 16:02:09.825 +0530] [32mINFO[39m (62163): [36m🚀 Application is running on: http://localhost:5001[39m
+[2025-09-29 16:02:09.825 +0530] [32mINFO[39m (62163): [36m📊 Health checks available at: http://localhost:5001/health[39m
+[2025-09-29 16:02:09.825 +0530] [32mINFO[39m (62163): [36m🔍 GraphQL Sandbox: http://localhost:5001/graphql[39m
+[2025-09-29 16:02:09.825 +0530] [32mINFO[39m (62163): [36m📚 API Documentation: http://localhost:5001/api/docs[39m
+[2025-09-29 16:02:09.825 +0530] [32mINFO[39m (62163): [36m🔧 Apollo Studio Sandbox: https://studio.apollographql.com/sandbox/explorer[39m
+GraphQL Error: {
+  message: "Cannot read properties of undefined (reading 'url')",
+  locations: [ { line: 3, column: 7 } ],
+  path: [ 'register' ],
+  extensions: {
+    code: 'INTERNAL_SERVER_ERROR',
+    stacktrace: [
+      "TypeError: Cannot read properties of undefined (reading 'url')",
+      '    at FastifyExceptionFilter.buildErrorResponse (/Users/drprockz/STSPL/v1/shooterista-backend-v2/dist/main.js:1232:30)',
+      '    at FastifyExceptionFilter.catch (/Users/drprockz/STSPL/v1/shooterista-backend-v2/dist/main.js:1226:36)',
+      '    at ExternalExceptionsHandler.invokeCustomFilters (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/@nestjs/core/exceptions/external-exceptions-handler.js:31:32)',
+      '    at ExternalExceptionsHandler.next (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/@nestjs/core/exceptions/external-exceptions-handler.js:14:29)',
+      '    at Object.register (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/@nestjs/core/helpers/external-proxy.js:14:42)',
+      '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)'
+    ]
+  }
+}
+[2025-09-29 16:02:21.395 +0530] [32mINFO[39m (62163): [36mIncoming request[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/graphql"
+    [35mheaders[39m: {
+      "host": "localhost:5001",
+      "user-agent": "node-fetch/1.0 (+https://github.com/bitinn/node-fetch)",
+      "content-length": "527"
+    }
+    [35mtenant[39m: "debug-tenant"
+    [35mrequestId[39m: "debug-1759141941383-jdggn6157"
+[2025-09-29 16:02:21.404 +0530] [32mINFO[39m (62163): [36mRequest completed[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/graphql"
+    [35mstatusCode[39m: 200
+    [35mresponseTime[39m: "10ms"
+    [35mrequestId[39m: "debug-1759141941383-jdggn6157"
+
+ Info  Webpack is building your sources...
+
+webpack 5.97.1 compiled [1m[32msuccessfully[39m[22m in 53 ms
+[Nest] 62163  - 09/29/2025, 4:02:32 PM     LOG [ProcessSafetyService] Object(4) {
+  event: [32m'process_signal'[39m,
+  signal: [32m'SIGTERM'[39m,
+  message: [32m'Received SIGTERM, starting graceful shutdown'[39m,
+  timestamp: [32m'2025-09-29T10:32:32.571Z'[39m
+}
+Type-checking in progress...
+No errors found.
+[2025-09-29 16:02:32.571 +0530] [32mINFO[39m (62163): [36mSIGTERM received, shutting down gracefully[39m
+📁 Loading environment from: .env.development
+[Nest] 62704  - 09/29/2025, 4:02:33 PM     LOG [ProcessSafetyService] Initializing process safety nets
+[Nest] 62704  - 09/29/2025, 4:02:33 PM     LOG [ProcessSafetyService] Process safety nets initialized successfully
+🚀 Starting Shooterista Backend
+📁 Environment: development
+📄 Config file: .env.development
+⏰ Started at: 2025-09-29T10:32:33.996Z
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [NestFactory] Starting Nest application... +11ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] AppModule dependencies initialized +18ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] AppConfigModule dependencies initialized +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] BullInfraModule dependencies initialized +3ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] S3Module dependencies initialized +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] ConfigHostModule dependencies initialized +2ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] ConfigModule dependencies initialized +5ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] ConfigModule dependencies initialized +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] TerminusModule dependencies initialized +0ms
+📧 [PROVIDER FACTORY] Selected email provider: smtp
+📧 [PROVIDER FACTORY] Creating SmtpEmailAdapter
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] TenantContextModule dependencies initialized +5ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] JwtModule dependencies initialized +5ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] NotificationsModule dependencies initialized +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] GraphQLSchemaBuilderModule dependencies initialized +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] HealthModule dependencies initialized +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] TenantModule dependencies initialized +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] UserModule dependencies initialized +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] GraphQLModule dependencies initialized +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] GqlModule dependencies initialized +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [InstanceLoader] AuthModule dependencies initialized +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RoutesResolver] AuthController {/auth}: +41ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/auth/register, POST} route +1ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/auth/login, POST} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/auth/refresh, POST} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/auth/logout, POST} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/auth/logout-all, POST} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/auth/me, GET} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/auth/password/change, POST} route +1ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/auth/password/reset/request, POST} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/auth/password/reset, POST} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/auth/email/verify, POST} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/auth/email/resend, POST} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/auth/mfa/setup, POST} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/auth/mfa/enable, POST} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/auth/mfa/disable, POST} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RoutesResolver] TenantController {/tenant}: +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/tenant, POST} route +1ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/tenant/:id, GET} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/tenant/slug/:slug, GET} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/tenant/:id, PUT} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/tenant/invite, POST} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/tenant/my/tenants, GET} route +1ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/tenant/:id/users, GET} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/tenant/switch, POST} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RoutesResolver] UserController {/user}: +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/user/profile, GET} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/user/profile, PUT} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/user/activities, GET} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/user/notifications, GET} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/user/preferences, GET} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RoutesResolver] HealthController {/health}: +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/health, GET} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/health/ready, GET} route +0ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [RouterExplorer] Mapped {/health/live, GET} route +0ms
+[2025-09-29 16:02:34.084 +0530] [32mINFO[39m (62704): [36m📚 Swagger documentation available at: http://localhost:5001/api/docs[39m
+✅ Auth database connected successfully
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [GraphQLModule] Mapped {/graphql, POST} route +598ms
+[Nest] 62704  - 09/29/2025, 4:02:34 PM     LOG [NestApplication] Nest application successfully started +1ms
+[2025-09-29 16:02:34.693 +0530] [32mINFO[39m (62704): [36m🚀 Application is running on: http://localhost:5001[39m
+[2025-09-29 16:02:34.694 +0530] [32mINFO[39m (62704): [36m📊 Health checks available at: http://localhost:5001/health[39m
+[2025-09-29 16:02:34.694 +0530] [32mINFO[39m (62704): [36m🔍 GraphQL Sandbox: http://localhost:5001/graphql[39m
+[2025-09-29 16:02:34.694 +0530] [32mINFO[39m (62704): [36m📚 API Documentation: http://localhost:5001/api/docs[39m
+[2025-09-29 16:02:34.694 +0530] [32mINFO[39m (62704): [36m🔧 Apollo Studio Sandbox: https://studio.apollographql.com/sandbox/explorer[39m
+
+ Info  Webpack is building your sources...
+
+webpack 5.97.1 compiled [1m[32msuccessfully[39m[22m in 61 ms
+[Nest] 62704  - 09/29/2025, 4:02:37 PM     LOG [ProcessSafetyService] Object(4) {
+  event: [32m'process_signal'[39m,
+  signal: [32m'SIGTERM'[39m,
+  message: [32m'Received SIGTERM, starting graceful shutdown'[39m,
+  timestamp: [32m'2025-09-29T10:32:37.076Z'[39m
+}
+No errors found.
+[2025-09-29 16:02:37.076 +0530] [32mINFO[39m (62704): [36mSIGTERM received, shutting down gracefully[39m
+📁 Loading environment from: .env.development
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [ProcessSafetyService] Initializing process safety nets
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [ProcessSafetyService] Process safety nets initialized successfully
+🚀 Starting Shooterista Backend
+📁 Environment: development
+📄 Config file: .env.development
+⏰ Started at: 2025-09-29T10:32:37.702Z
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [NestFactory] Starting Nest application... +9ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] AppModule dependencies initialized +16ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] AppConfigModule dependencies initialized +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] BullInfraModule dependencies initialized +3ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] S3Module dependencies initialized +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] ConfigHostModule dependencies initialized +2ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] ConfigModule dependencies initialized +5ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] ConfigModule dependencies initialized +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] TerminusModule dependencies initialized +0ms
+📧 [PROVIDER FACTORY] Selected email provider: smtp
+📧 [PROVIDER FACTORY] Creating SmtpEmailAdapter
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] TenantContextModule dependencies initialized +4ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] JwtModule dependencies initialized +4ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] NotificationsModule dependencies initialized +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] GraphQLSchemaBuilderModule dependencies initialized +1ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] HealthModule dependencies initialized +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] TenantModule dependencies initialized +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] UserModule dependencies initialized +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] GraphQLModule dependencies initialized +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] GqlModule dependencies initialized +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [InstanceLoader] AuthModule dependencies initialized +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RoutesResolver] AuthController {/auth}: +23ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/auth/register, POST} route +1ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/auth/login, POST} route +1ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/auth/refresh, POST} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/auth/logout, POST} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/auth/logout-all, POST} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/auth/me, GET} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/auth/password/change, POST} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/auth/password/reset/request, POST} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/auth/password/reset, POST} route +1ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/auth/email/verify, POST} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/auth/email/resend, POST} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/auth/mfa/setup, POST} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/auth/mfa/enable, POST} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/auth/mfa/disable, POST} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RoutesResolver] TenantController {/tenant}: +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/tenant, POST} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/tenant/:id, GET} route +1ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/tenant/slug/:slug, GET} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/tenant/:id, PUT} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/tenant/invite, POST} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/tenant/my/tenants, GET} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/tenant/:id/users, GET} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/tenant/switch, POST} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RoutesResolver] UserController {/user}: +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/user/profile, GET} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/user/profile, PUT} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/user/activities, GET} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/user/notifications, GET} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/user/preferences, GET} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RoutesResolver] HealthController {/health}: +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/health, GET} route +1ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/health/ready, GET} route +0ms
+[Nest] 62792  - 09/29/2025, 4:02:37 PM     LOG [RouterExplorer] Mapped {/health/live, GET} route +0ms
+[2025-09-29 16:02:37.768 +0530] [32mINFO[39m (62792): [36m📚 Swagger documentation available at: http://localhost:5001/api/docs[39m
+✅ Auth database connected successfully
+[Nest] 62792  - 09/29/2025, 4:02:38 PM     LOG [GraphQLModule] Mapped {/graphql, POST} route +520ms
+[Nest] 62792  - 09/29/2025, 4:02:38 PM     LOG [NestApplication] Nest application successfully started +1ms
+[2025-09-29 16:02:38.299 +0530] [32mINFO[39m (62792): [36m🚀 Application is running on: http://localhost:5001[39m
+[2025-09-29 16:02:38.299 +0530] [32mINFO[39m (62792): [36m📊 Health checks available at: http://localhost:5001/health[39m
+[2025-09-29 16:02:38.299 +0530] [32mINFO[39m (62792): [36m🔍 GraphQL Sandbox: http://localhost:5001/graphql[39m
+[2025-09-29 16:02:38.299 +0530] [32mINFO[39m (62792): [36m📚 API Documentation: http://localhost:5001/api/docs[39m
+[2025-09-29 16:02:38.299 +0530] [32mINFO[39m (62792): [36m🔧 Apollo Studio Sandbox: https://studio.apollographql.com/sandbox/explorer[39m
+[Nest] 62792  - 09/29/2025, 4:02:39 PM    WARN [FastifyExceptionFilter] unknown unknown - 400 Bad Request: Validation failed
+[Nest] 62792  - 09/29/2025, 4:02:39 PM    WARN [FastifyExceptionFilter] {"method":"unknown","url":"unknown","ip":"unknown","statusCode":400,"error":"Bad Request","message":"Validation failed"}
+GraphQL Error: {
+  message: 'response.status is not a function',
+  locations: [ { line: 3, column: 7 } ],
+  path: [ 'register' ],
+  extensions: {
+    code: 'INTERNAL_SERVER_ERROR',
+    stacktrace: [
+      'TypeError: response.status is not a function',
+      '    at FastifyExceptionFilter.catch (/Users/drprockz/STSPL/v1/shooterista-backend-v2/dist/main.js:1228:18)',
+      '    at ExternalExceptionsHandler.invokeCustomFilters (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/@nestjs/core/exceptions/external-exceptions-handler.js:31:32)',
+      '    at ExternalExceptionsHandler.next (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/@nestjs/core/exceptions/external-exceptions-handler.js:14:29)',
+      '    at Object.register (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/@nestjs/core/helpers/external-proxy.js:14:42)',
+      '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)'
+    ]
+  }
+}
+[2025-09-29 16:02:39.027 +0530] [32mINFO[39m (62792): [36mIncoming request[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/graphql"
+    [35mheaders[39m: {
+      "host": "localhost:5001",
+      "user-agent": "node-fetch/1.0 (+https://github.com/bitinn/node-fetch)",
+      "content-length": "527"
+    }
+    [35mtenant[39m: "debug-tenant"
+    [35mrequestId[39m: "debug-1759141959016-s1wmj5hfh"
+[2025-09-29 16:02:39.037 +0530] [32mINFO[39m (62792): [36mRequest completed[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/graphql"
+    [35mstatusCode[39m: 200
+    [35mresponseTime[39m: "11ms"
+    [35mrequestId[39m: "debug-1759141959016-s1wmj5hfh"
+
+ Info  Webpack is building your sources...
+
+webpack 5.97.1 compiled [1m[32msuccessfully[39m[22m in 35 ms
+[Nest] 62792  - 09/29/2025, 4:02:43 PM     LOG [ProcessSafetyService] Object(4) {
+  event: [32m'process_signal'[39m,
+  signal: [32m'SIGTERM'[39m,
+  message: [32m'Received SIGTERM, starting graceful shutdown'[39m,
+  timestamp: [32m'2025-09-29T10:32:43.150Z'[39m
+}
+No errors found.
+[2025-09-29 16:02:43.150 +0530] [32mINFO[39m (62792): [36mSIGTERM received, shutting down gracefully[39m
+📁 Loading environment from: .env.development
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [ProcessSafetyService] Initializing process safety nets
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [ProcessSafetyService] Process safety nets initialized successfully
+🚀 Starting Shooterista Backend
+📁 Environment: development
+📄 Config file: .env.development
+⏰ Started at: 2025-09-29T10:32:44.651Z
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [NestFactory] Starting Nest application... +9ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] AppModule dependencies initialized +15ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] AppConfigModule dependencies initialized +1ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] BullInfraModule dependencies initialized +2ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] S3Module dependencies initialized +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] ConfigHostModule dependencies initialized +2ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] ConfigModule dependencies initialized +5ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] ConfigModule dependencies initialized +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] TerminusModule dependencies initialized +0ms
+📧 [PROVIDER FACTORY] Selected email provider: smtp
+📧 [PROVIDER FACTORY] Creating SmtpEmailAdapter
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] TenantContextModule dependencies initialized +5ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] JwtModule dependencies initialized +4ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] NotificationsModule dependencies initialized +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] GraphQLSchemaBuilderModule dependencies initialized +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] HealthModule dependencies initialized +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] TenantModule dependencies initialized +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] UserModule dependencies initialized +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] GraphQLModule dependencies initialized +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] GqlModule dependencies initialized +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [InstanceLoader] AuthModule dependencies initialized +1ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RoutesResolver] AuthController {/auth}: +23ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/auth/register, POST} route +1ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/auth/login, POST} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/auth/refresh, POST} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/auth/logout, POST} route +1ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/auth/logout-all, POST} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/auth/me, GET} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/auth/password/change, POST} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/auth/password/reset/request, POST} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/auth/password/reset, POST} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/auth/email/verify, POST} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/auth/email/resend, POST} route +1ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/auth/mfa/setup, POST} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/auth/mfa/enable, POST} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/auth/mfa/disable, POST} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RoutesResolver] TenantController {/tenant}: +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/tenant, POST} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/tenant/:id, GET} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/tenant/slug/:slug, GET} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/tenant/:id, PUT} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/tenant/invite, POST} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/tenant/my/tenants, GET} route +1ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/tenant/:id/users, GET} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/tenant/switch, POST} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RoutesResolver] UserController {/user}: +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/user/profile, GET} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/user/profile, PUT} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/user/activities, GET} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/user/notifications, GET} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/user/preferences, GET} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RoutesResolver] HealthController {/health}: +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/health, GET} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/health/ready, GET} route +0ms
+[Nest] 62953  - 09/29/2025, 4:02:44 PM     LOG [RouterExplorer] Mapped {/health/live, GET} route +0ms
+[2025-09-29 16:02:44.717 +0530] [32mINFO[39m (62953): [36m📚 Swagger documentation available at: http://localhost:5001/api/docs[39m
+✅ Auth database connected successfully
+[Nest] 62953  - 09/29/2025, 4:02:45 PM     LOG [GraphQLModule] Mapped {/graphql, POST} route +536ms
+[Nest] 62953  - 09/29/2025, 4:02:45 PM     LOG [NestApplication] Nest application successfully started +1ms
+[2025-09-29 16:02:45.263 +0530] [32mINFO[39m (62953): [36m🚀 Application is running on: http://localhost:5001[39m
+[2025-09-29 16:02:45.263 +0530] [32mINFO[39m (62953): [36m📊 Health checks available at: http://localhost:5001/health[39m
+[2025-09-29 16:02:45.263 +0530] [32mINFO[39m (62953): [36m🔍 GraphQL Sandbox: http://localhost:5001/graphql[39m
+[2025-09-29 16:02:45.263 +0530] [32mINFO[39m (62953): [36m📚 API Documentation: http://localhost:5001/api/docs[39m
+[2025-09-29 16:02:45.263 +0530] [32mINFO[39m (62953): [36m🔧 Apollo Studio Sandbox: https://studio.apollographql.com/sandbox/explorer[39m
+[2025-09-29 16:02:52.243 +0530] [32mINFO[39m (62953): [36mRequest completed[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/graphql"
+    [35mstatusCode[39m: 403
+    [35mresponseTime[39m: "2ms"
+[2025-09-29 16:02:55.186 +0530] [32mINFO[39m (62953): [36mIncoming request[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/graphql"
+    [35mheaders[39m: {
+      "host": "localhost:5001",
+      "user-agent": "Mozilla/5.0",
+      "content-length": "26"
+    }
+    [35mtenant[39m: null
+    [35mrequestId[39m: "842db514-6ccb-4f8a-b24e-7788b04aa39c"
+[2025-09-29 16:02:55.190 +0530] [32mINFO[39m (62953): [36mRequest completed[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/graphql"
+    [35mstatusCode[39m: 200
+    [35mresponseTime[39m: "4ms"
+    [35mrequestId[39m: "842db514-6ccb-4f8a-b24e-7788b04aa39c"
+[Nest] 62953  - 09/29/2025, 4:03:02 PM    WARN [FastifyExceptionFilter] unknown unknown - 400 Bad Request: Validation failed
+[Nest] 62953  - 09/29/2025, 4:03:02 PM    WARN [FastifyExceptionFilter] {"method":"unknown","url":"unknown","ip":"unknown","statusCode":400,"error":"Bad Request","message":"Validation failed"}
+GraphQL Error: {
+  message: 'response.code is not a function',
+  locations: [ { line: 3, column: 7 } ],
+  path: [ 'register' ],
+  extensions: {
+    code: 'INTERNAL_SERVER_ERROR',
+    stacktrace: [
+      'TypeError: response.code is not a function',
+      '    at FastifyExceptionFilter.catch (/Users/drprockz/STSPL/v1/shooterista-backend-v2/dist/main.js:1228:18)',
+      '    at ExternalExceptionsHandler.invokeCustomFilters (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/@nestjs/core/exceptions/external-exceptions-handler.js:31:32)',
+      '    at ExternalExceptionsHandler.next (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/@nestjs/core/exceptions/external-exceptions-handler.js:14:29)',
+      '    at Object.register (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/@nestjs/core/helpers/external-proxy.js:14:42)',
+      '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)'
+    ]
+  }
+}
+[2025-09-29 16:03:02.519 +0530] [32mINFO[39m (62953): [36mIncoming request[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/graphql"
+    [35mheaders[39m: {
+      "host": "localhost:5001",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+      "content-length": "527"
+    }
+    [35mtenant[39m: "debug-tenant"
+    [35mrequestId[39m: "debug-1759141982511-zt6fjkeyl"
+[2025-09-29 16:03:02.525 +0530] [32mINFO[39m (62953): [36mRequest completed[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/graphql"
+    [35mstatusCode[39m: 200
+    [35mresponseTime[39m: "6ms"
+    [35mrequestId[39m: "debug-1759141982511-zt6fjkeyl"
+
+ Info  Webpack is building your sources...
+
+webpack 5.97.1 compiled [1m[32msuccessfully[39m[22m in 34 ms
+[Nest] 62953  - 09/29/2025, 4:03:06 PM     LOG [ProcessSafetyService] Object(4) {
+  event: [32m'process_signal'[39m,
+  signal: [32m'SIGTERM'[39m,
+  message: [32m'Received SIGTERM, starting graceful shutdown'[39m,
+  timestamp: [32m'2025-09-29T10:33:06.573Z'[39m
+}
+No errors found.
+[2025-09-29 16:03:06.574 +0530] [32mINFO[39m (62953): [36mSIGTERM received, shutting down gracefully[39m
+📁 Loading environment from: .env.development
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [ProcessSafetyService] Initializing process safety nets
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [ProcessSafetyService] Process safety nets initialized successfully
+🚀 Starting Shooterista Backend
+📁 Environment: development
+📄 Config file: .env.development
+⏰ Started at: 2025-09-29T10:33:07.514Z
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [NestFactory] Starting Nest application... +9ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] AppModule dependencies initialized +14ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] AppConfigModule dependencies initialized +1ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] BullInfraModule dependencies initialized +2ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] S3Module dependencies initialized +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] ConfigHostModule dependencies initialized +2ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] ConfigModule dependencies initialized +5ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] ConfigModule dependencies initialized +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] TerminusModule dependencies initialized +0ms
+📧 [PROVIDER FACTORY] Selected email provider: smtp
+📧 [PROVIDER FACTORY] Creating SmtpEmailAdapter
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] TenantContextModule dependencies initialized +4ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] JwtModule dependencies initialized +4ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] NotificationsModule dependencies initialized +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] GraphQLSchemaBuilderModule dependencies initialized +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] HealthModule dependencies initialized +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] TenantModule dependencies initialized +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] UserModule dependencies initialized +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] GraphQLModule dependencies initialized +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] GqlModule dependencies initialized +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [InstanceLoader] AuthModule dependencies initialized +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RoutesResolver] AuthController {/auth}: +23ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/auth/register, POST} route +1ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/auth/login, POST} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/auth/refresh, POST} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/auth/logout, POST} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/auth/logout-all, POST} route +1ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/auth/me, GET} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/auth/password/change, POST} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/auth/password/reset/request, POST} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/auth/password/reset, POST} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/auth/email/verify, POST} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/auth/email/resend, POST} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/auth/mfa/setup, POST} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/auth/mfa/enable, POST} route +1ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/auth/mfa/disable, POST} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RoutesResolver] TenantController {/tenant}: +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/tenant, POST} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/tenant/:id, GET} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/tenant/slug/:slug, GET} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/tenant/:id, PUT} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/tenant/invite, POST} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/tenant/my/tenants, GET} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/tenant/:id/users, GET} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/tenant/switch, POST} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RoutesResolver] UserController {/user}: +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/user/profile, GET} route +1ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/user/profile, PUT} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/user/activities, GET} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/user/notifications, GET} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/user/preferences, GET} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RoutesResolver] HealthController {/health}: +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/health, GET} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/health/ready, GET} route +0ms
+[Nest] 63486  - 09/29/2025, 4:03:07 PM     LOG [RouterExplorer] Mapped {/health/live, GET} route +0ms
+[2025-09-29 16:03:07.577 +0530] [32mINFO[39m (63486): [36m📚 Swagger documentation available at: http://localhost:5001/api/docs[39m
+✅ Auth database connected successfully
+[Nest] 63486  - 09/29/2025, 4:03:08 PM     LOG [GraphQLModule] Mapped {/graphql, POST} route +772ms
+[Nest] 63486  - 09/29/2025, 4:03:08 PM     LOG [NestApplication] Nest application successfully started +1ms
+[2025-09-29 16:03:08.359 +0530] [32mINFO[39m (63486): [36m🚀 Application is running on: http://localhost:5001[39m
+[2025-09-29 16:03:08.359 +0530] [32mINFO[39m (63486): [36m📊 Health checks available at: http://localhost:5001/health[39m
+[2025-09-29 16:03:08.359 +0530] [32mINFO[39m (63486): [36m🔍 GraphQL Sandbox: http://localhost:5001/graphql[39m
+[2025-09-29 16:03:08.359 +0530] [32mINFO[39m (63486): [36m📚 API Documentation: http://localhost:5001/api/docs[39m
+[2025-09-29 16:03:08.359 +0530] [32mINFO[39m (63486): [36m🔧 Apollo Studio Sandbox: https://studio.apollographql.com/sandbox/explorer[39m
+
+ Info  Webpack is building your sources...
+
+webpack 5.97.1 compiled [1m[32msuccessfully[39m[22m in 35 ms
+[Nest] 63486  - 09/29/2025, 4:03:24 PM     LOG [ProcessSafetyService] Object(4) {
+  event: [32m'process_signal'[39m,
+  signal: [32m'SIGTERM'[39m,
+  message: [32m'Received SIGTERM, starting graceful shutdown'[39m,
+  timestamp: [32m'2025-09-29T10:33:24.044Z'[39m
+}
+Type-checking in progress...
+No errors found.
+[2025-09-29 16:03:24.044 +0530] [32mINFO[39m (63486): [36mSIGTERM received, shutting down gracefully[39m
+📁 Loading environment from: .env.development
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [ProcessSafetyService] Initializing process safety nets
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [ProcessSafetyService] Process safety nets initialized successfully
+🚀 Starting Shooterista Backend
+📁 Environment: development
+📄 Config file: .env.development
+⏰ Started at: 2025-09-29T10:33:25.179Z
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [NestFactory] Starting Nest application... +9ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] AppModule dependencies initialized +17ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] AppConfigModule dependencies initialized +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] BullInfraModule dependencies initialized +2ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] S3Module dependencies initialized +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] ConfigHostModule dependencies initialized +2ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] ConfigModule dependencies initialized +5ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] ConfigModule dependencies initialized +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] TerminusModule dependencies initialized +0ms
+📧 [PROVIDER FACTORY] Selected email provider: smtp
+📧 [PROVIDER FACTORY] Creating SmtpEmailAdapter
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] TenantContextModule dependencies initialized +5ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] JwtModule dependencies initialized +4ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] NotificationsModule dependencies initialized +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] GraphQLSchemaBuilderModule dependencies initialized +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] HealthModule dependencies initialized +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] TenantModule dependencies initialized +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] UserModule dependencies initialized +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] GraphQLModule dependencies initialized +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] GqlModule dependencies initialized +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [InstanceLoader] AuthModule dependencies initialized +1ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RoutesResolver] AuthController {/auth}: +23ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/auth/register, POST} route +1ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/auth/login, POST} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/auth/refresh, POST} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/auth/logout, POST} route +1ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/auth/logout-all, POST} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/auth/me, GET} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/auth/password/change, POST} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/auth/password/reset/request, POST} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/auth/password/reset, POST} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/auth/email/verify, POST} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/auth/email/resend, POST} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/auth/mfa/setup, POST} route +1ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/auth/mfa/enable, POST} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/auth/mfa/disable, POST} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RoutesResolver] TenantController {/tenant}: +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/tenant, POST} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/tenant/:id, GET} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/tenant/slug/:slug, GET} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/tenant/:id, PUT} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/tenant/invite, POST} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/tenant/my/tenants, GET} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/tenant/:id/users, GET} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/tenant/switch, POST} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RoutesResolver] UserController {/user}: +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/user/profile, GET} route +1ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/user/profile, PUT} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/user/activities, GET} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/user/notifications, GET} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/user/preferences, GET} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RoutesResolver] HealthController {/health}: +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/health, GET} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/health/ready, GET} route +0ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [RouterExplorer] Mapped {/health/live, GET} route +0ms
+[2025-09-29 16:03:25.246 +0530] [32mINFO[39m (63816): [36m📚 Swagger documentation available at: http://localhost:5001/api/docs[39m
+✅ Auth database connected successfully
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [GraphQLModule] Mapped {/graphql, POST} route +671ms
+[Nest] 63816  - 09/29/2025, 4:03:25 PM     LOG [NestApplication] Nest application successfully started +1ms
+[2025-09-29 16:03:25.926 +0530] [32mINFO[39m (63816): [36m🚀 Application is running on: http://localhost:5001[39m
+[2025-09-29 16:03:25.926 +0530] [32mINFO[39m (63816): [36m📊 Health checks available at: http://localhost:5001/health[39m
+[2025-09-29 16:03:25.926 +0530] [32mINFO[39m (63816): [36m🔍 GraphQL Sandbox: http://localhost:5001/graphql[39m
+[2025-09-29 16:03:25.926 +0530] [32mINFO[39m (63816): [36m📚 API Documentation: http://localhost:5001/api/docs[39m
+[2025-09-29 16:03:25.927 +0530] [32mINFO[39m (63816): [36m🔧 Apollo Studio Sandbox: https://studio.apollographql.com/sandbox/explorer[39m
+GraphQL Error: {
+  message: 'Validation failed',
+  locations: [ { line: 3, column: 7 } ],
+  path: [ 'register' ],
+  extensions: {
+    code: 'INTERNAL_SERVER_ERROR',
+    stacktrace: [
+      'BadRequestException: Validation failed',
+      '    at ValidationPipe.transform (/Users/drprockz/STSPL/v1/shooterista-backend-v2/dist/main.js:1647:19)',
+      '    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)',
+      '    at async resolveParamValue (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/@nestjs/core/helpers/external-context-creator.js:136:31)',
+      '    at async Promise.all (index 1)',
+      '    at async pipesFn (/Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/@nestjs/core/helpers/external-context-creator.js:138:13)',
+      '    at async /Users/drprockz/STSPL/v1/shooterista-backend-v2/node_modules/@nestjs/core/helpers/external-context-creator.js:66:17'
+    ]
+  }
+}
+[2025-09-29 16:03:26.576 +0530] [32mINFO[39m (63816): [36mIncoming request[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/graphql"
+    [35mheaders[39m: {
+      "host": "localhost:5001",
+      "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+      "content-length": "527"
+    }
+    [35mtenant[39m: "debug-tenant"
+    [35mrequestId[39m: "debug-1759142006566-nwdwka5eh"
+[2025-09-29 16:03:26.585 +0530] [32mINFO[39m (63816): [36mRequest completed[39m
+    [35mmethod[39m: "POST"
+    [35murl[39m: "/graphql"
+    [35mstatusCode[39m: 200
+    [35mresponseTime[39m: "10ms"
+    [35mrequestId[39m: "debug-1759142006566-nwdwka5eh"
+
+ Info  Webpack is building your sources...
+
+webpack 5.97.1 compiled [1m[32msuccessfully[39m[22m in 29 ms
+No errors found.
+[Nest] 63816  - 09/29/2025, 4:03:46 PM     LOG [ProcessSafetyService] Object(4) {
+  event: [32m'process_signal'[39m,
+  signal: [32m'SIGTERM'[39m,
+  message: [32m'Received SIGTERM, starting graceful shutdown'[39m,
+  timestamp: [32m'2025-09-29T10:33:46.075Z'[39m
+}
+[2025-09-29 16:03:46.075 +0530] [32mINFO[39m (63816): [36mSIGTERM received, shutting down gracefully[39m
+📁 Loading environment from: .env.development
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [ProcessSafetyService] Initializing process safety nets
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [ProcessSafetyService] Process safety nets initialized successfully
+🚀 Starting Shooterista Backend
+📁 Environment: development
+📄 Config file: .env.development
+⏰ Started at: 2025-09-29T10:33:47.493Z
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [NestFactory] Starting Nest application... +8ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] AppModule dependencies initialized +15ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] AppConfigModule dependencies initialized +1ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] BullInfraModule dependencies initialized +2ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] S3Module dependencies initialized +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] ConfigHostModule dependencies initialized +2ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] ConfigModule dependencies initialized +5ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] ConfigModule dependencies initialized +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] TerminusModule dependencies initialized +0ms
+📧 [PROVIDER FACTORY] Selected email provider: smtp
+📧 [PROVIDER FACTORY] Creating SmtpEmailAdapter
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] TenantContextModule dependencies initialized +5ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] JwtModule dependencies initialized +3ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] NotificationsModule dependencies initialized +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] GraphQLSchemaBuilderModule dependencies initialized +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] HealthModule dependencies initialized +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] TenantModule dependencies initialized +1ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] UserModule dependencies initialized +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] GraphQLModule dependencies initialized +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] GqlModule dependencies initialized +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [InstanceLoader] AuthModule dependencies initialized +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RoutesResolver] AuthController {/auth}: +40ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/auth/register, POST} route +1ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/auth/login, POST} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/auth/refresh, POST} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/auth/logout, POST} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/auth/logout-all, POST} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/auth/me, GET} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/auth/password/change, POST} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/auth/password/reset/request, POST} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/auth/password/reset, POST} route +1ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/auth/email/verify, POST} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/auth/email/resend, POST} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/auth/mfa/setup, POST} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/auth/mfa/enable, POST} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/auth/mfa/disable, POST} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RoutesResolver] TenantController {/tenant}: +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/tenant, POST} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/tenant/:id, GET} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/tenant/slug/:slug, GET} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/tenant/:id, PUT} route +1ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/tenant/invite, POST} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/tenant/my/tenants, GET} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/tenant/:id/users, GET} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/tenant/switch, POST} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RoutesResolver] UserController {/user}: +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/user/profile, GET} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/user/profile, PUT} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/user/activities, GET} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/user/notifications, GET} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/user/preferences, GET} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RoutesResolver] HealthController {/health}: +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/health, GET} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/health/ready, GET} route +0ms
+[Nest] 64271  - 09/29/2025, 4:03:47 PM     LOG [RouterExplorer] Mapped {/health/live, GET} route +0ms
+[2025-09-29 16:03:47.573 +0530] [32mINFO[39m (64271): [36m📚 Swagger documentation available at: http://localhost:5001/api/docs[39m
+✅ Auth database connected successfully
+[Nest] 64271  - 09/29/2025, 4:03:48 PM     LOG [GraphQLModule] Mapped {/graphql, POST} route +661ms
+[Nest] 64271  - 09/29/2025, 4:03:48 PM     LOG [NestApplication] Nest application successfully started +1ms
+[2025-09-29 16:03:48.243 +0530] [32mINFO[39m (64271): [36m🚀 Application is running on: http://localhost:5001[39m
+[2025-09-29 16:03:48.243 +0530] [32mINFO[39m (64271): [36m📊 Health checks available at: http://localhost:5001/health[39m
+[2025-09-29 16:03:48.243 +0530] [32mINFO[39m (64271): [36m🔍 GraphQL Sandbox: http://localhost:5001/graphql[39m
+[2025-09-29 16:03:48.244 +0530] [32mINFO[39m (64271): [36m📚 API Documentation: http://localhost:5001/api/docs[39m
+[2025-09-29 16:03:48.244 +0530] [32mINFO[39m (64271): [36m🔧 Apollo Studio Sandbox: https://studio.apollographql.com/sandbox/explorer[39m

@@ -314,12 +314,42 @@ export class NotificationService implements INotificationService {
   private applyTenantBranding(htmlContent: string, branding: any): string {
     if (!branding) return htmlContent;
 
+    // Safely handle logo URL - handle both string and object cases
+    let safeLogoUrl: string | null = null;
+    
+    // Guard .url access with comprehensive logging
+    this.logger.log({
+      event: 'guard.check.url',
+      context: 'notification_branding_logo',
+      value_type: typeof branding?.logoUrl,
+      isObject: branding?.logoUrl && typeof branding.logoUrl === 'object',
+      hasUrlProp: !!branding?.logoUrl?.url,
+    });
+    
+    if (branding?.logoUrl) {
+      if (typeof branding.logoUrl === 'string' && branding.logoUrl.trim() !== '') {
+        safeLogoUrl = branding.logoUrl;
+      } else if (typeof branding.logoUrl === 'object' && branding.logoUrl.url) {
+        // Handle case where logoUrl is an object with .url property
+        safeLogoUrl = branding.logoUrl.url;
+      } else if (typeof branding.logoUrl === 'object' && !branding.logoUrl.url) {
+        this.logger.warn({
+          event: 'guard.block.url_access',
+          context: 'notification_branding_logo',
+          value_type: typeof branding.logoUrl,
+          isObject: true,
+          hasUrlProp: false,
+          reason: 'object_has_no_url_property',
+        });
+      }
+    }
+
     // Apply branding styles
     const brandedHtml = htmlContent.replace(
       '<body>',
       `<body style="font-family: ${branding.fontFamily || 'Inter, sans-serif'}; color: #333;">
         <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-          ${branding.logoUrl ? `<img src="${branding.logoUrl}" alt="Logo" style="max-width: 200px; margin-bottom: 20px;">` : ''}
+          ${safeLogoUrl ? `<img src="${safeLogoUrl}" alt="Logo" style="max-width: 200px; margin-bottom: 20px;">` : ''}
       `
     ).replace(
       '</body>',

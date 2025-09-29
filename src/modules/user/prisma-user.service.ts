@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaClient as UserPrismaClient } from '../../../node_modules/.prisma/user';
+import { PrismaClient as UserPrismaClient, UserProfile, UserActivity, UserNotification, UserPreference } from '../../../node_modules/.prisma/user';
 
 @Injectable()
 export class PrismaUserService {
@@ -9,13 +9,13 @@ export class PrismaUserService {
     this.prisma = new UserPrismaClient();
   }
 
-  async getUserProfile(userId: number) {
+  async getUserProfile(userId: number): Promise<UserProfile | null> {
     return this.prisma.userProfile.findUnique({
       where: { userId },
     });
   }
 
-  async createUserProfile(userId: number, data: any) {
+  async createUserProfile(userId: number, data: any): Promise<UserProfile> {
     return this.prisma.userProfile.create({
       data: {
         userId,
@@ -24,14 +24,14 @@ export class PrismaUserService {
     });
   }
 
-  async updateUserProfile(userId: number, data: any) {
+  async updateUserProfile(userId: number, data: any): Promise<UserProfile> {
     return this.prisma.userProfile.update({
       where: { userId },
       data,
     });
   }
 
-  async getUserActivities(userId: number, limit = 50, offset = 0) {
+  async getUserActivities(userId: number, limit = 50, offset = 0): Promise<UserActivity[]> {
     return this.prisma.userActivity.findMany({
       where: { userId },
       orderBy: { occurredAt: 'desc' },
@@ -40,7 +40,7 @@ export class PrismaUserService {
     });
   }
 
-  async getUserNotifications(userId: number, limit = 50, offset = 0) {
+  async getUserNotifications(userId: number, limit = 50, offset = 0): Promise<UserNotification[]> {
     return this.prisma.userNotification.findMany({
       where: { userId },
       orderBy: { createdAt: 'desc' },
@@ -49,7 +49,7 @@ export class PrismaUserService {
     });
   }
 
-  async getUserPreferences(userId: number, category?: string) {
+  async getUserPreferences(userId: number, category?: string): Promise<UserPreference[]> {
     return this.prisma.userPreference.findMany({
       where: {
         userId,

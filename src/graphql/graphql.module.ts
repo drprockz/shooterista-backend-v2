@@ -6,6 +6,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { CsrfInterceptor } from '../common/interceptors/csrf.interceptor';
 import { GraphQLContextService } from '../common/context/graphql-context';
+import { CorrelationService } from '../common/services/correlation.service';
 import { AuthModule } from '../modules/auth/auth.module';
 import { AuthResolver } from '../modules/auth/auth.resolver';
 import { TestResolver } from '../test-resolver';
@@ -56,7 +57,27 @@ import { TestResolver } from '../test-resolver';
             },
           } as any,
         ] : [],
-        context: ({ request, reply }) => ({ req: request, res: reply }),
+        context: ({ request, reply }) => {
+          // Generate request ID if not present
+          const requestId = request?.headers?.['x-request-id'] || require('uuid').v4();
+          if (request?.headers) {
+            request.headers['x-request-id'] = requestId;
+          }
+          
+          return { 
+            req: request, 
+            res: reply,
+            requestContext: {
+              requestId,
+              startTime: Date.now(),
+              operationName: 'unknown', // Will be set by resolver
+              userEmail: null,
+              tenantId: request?.headers?.['x-tenant-id'] || request?.headers?.['x-tenant-slug'],
+              ipAddress: request?.ip || 'unknown',
+              userAgent: request?.headers?.['user-agent'] || 'unknown'
+            }
+          };
+        },
         csrfPrevention: configService.get<string>('app.NODE_ENV') === 'production',
         cache: 'bounded',
         // Fastify-specific optimizations
@@ -77,6 +98,7 @@ import { TestResolver } from '../test-resolver';
             message: isDevelopment ? error.message : 'An error occurred',
             code: error.extensions?.code,
             path: error.path,
+            extensions: error.extensions,
             ...(isDevelopment && { 
               stack: (error as any).stack,
               originalError: (error as any).originalError?.message 
@@ -107,6 +129,7 @@ import { TestResolver } from '../test-resolver';
   ],
   providers: [
     GraphQLContextService,
+    CorrelationService,
     CsrfInterceptor,
     AuthResolver,
     TestResolver,

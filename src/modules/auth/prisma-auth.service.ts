@@ -1,7 +1,10 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaClient as AuthPrismaClient } from '.prisma/auth';
+// Using string literals for Prisma enums until import issue is resolved
+type PrismaProfileStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED';
+type PrismaProfileSection = 'PERSONAL' | 'CONTACT' | 'EDUCATION' | 'JOB' | 'EVENT';
 import { ConfigService } from '@nestjs/config';
-import { UserStatus, AuditAction, TokenType } from './dto/auth.types';
+import { UserStatus, AuditAction, TokenType, ProfileStatus, ProfileSection } from './dto/auth.types';
 
 @Injectable()
 export class PrismaAuthService extends AuthPrismaClient implements OnModuleInit {
@@ -72,6 +75,10 @@ export class PrismaAuthService extends AuthPrismaClient implements OnModuleInit 
     lastName?: string; 
     tenantId?: string;
     userType?: string;
+    isFirstLogin?: boolean;
+    profileCompletion?: number;
+      profileStatus?: PrismaProfileStatus;
+    modulesUnlocked?: boolean;
   }) {
     return this.user.create({
       data: {
@@ -95,6 +102,10 @@ export class PrismaAuthService extends AuthPrismaClient implements OnModuleInit 
     passwordChangedAt: Date;
     status: UserStatus;
     password: string;
+    isFirstLogin: boolean;
+    profileCompletion: number;
+    profileStatus: PrismaProfileStatus;
+    modulesUnlocked: boolean;
   }>) {
     return this.user.update({
       where: { id },
@@ -454,6 +465,137 @@ export class PrismaAuthService extends AuthPrismaClient implements OnModuleInit 
     ]);
 
     return { logs, totalCount };
+  }
+
+  // Profile Completion Operations
+  async findUserProfile(userId: number) {
+    return this.userProfile.findUnique({
+      where: { userId },
+    });
+  }
+
+  async findUserProfileDrafts(userId: number) {
+    return this.userProfileDraft.findMany({
+      where: { userId },
+      orderBy: { lastSavedAt: 'desc' },
+    });
+  }
+
+  async upsertUserProfileDraft(data: {
+    userId: number;
+    section: PrismaProfileSection;
+    draftData: any;
+    lastSavedAt: Date;
+  }) {
+    return this.userProfileDraft.upsert({
+      where: {
+        userId_section: {
+          userId: data.userId,
+          section: data.section,
+        },
+      },
+      update: {
+        draftData: data.draftData,
+        lastSavedAt: data.lastSavedAt,
+      },
+      create: data,
+    });
+  }
+
+  async moveDraftsToProfile(userId: number) {
+    const drafts = await this.findUserProfileDrafts(userId);
+    
+    if (drafts.length === 0) {
+      return null;
+    }
+
+    // Create or update user profile with draft data
+    const profileData: any = {
+      userId,
+      dataVersion: 1,
+      submittedAt: new Date(),
+    };
+
+    // Map drafts to profile sections
+    for (const draft of drafts) {
+      switch (draft.section) {
+        case 'PERSONAL':
+          profileData.personalData = draft.draftData;
+          profileData.personalComplete = this.isSectionComplete(draft.draftData, 'personal');
+          profileData.personalUpdatedAt = new Date();
+          profileData.personalUpdatedBy = userId;
+          break;
+        case 'CONTACT':
+          profileData.contactData = draft.draftData;
+          profileData.contactComplete = this.isSectionComplete(draft.draftData, 'contact');
+          profileData.contactUpdatedAt = new Date();
+          profileData.contactUpdatedBy = userId;
+          break;
+        case 'EDUCATION':
+          profileData.educationData = draft.draftData;
+          profileData.educationComplete = this.isSectionComplete(draft.draftData, 'education');
+          profileData.educationUpdatedAt = new Date();
+          profileData.educationUpdatedBy = userId;
+          break;
+        case 'JOB':
+          profileData.jobData = draft.draftData;
+          profileData.jobComplete = this.isSectionComplete(draft.draftData, 'job');
+          profileData.jobUpdatedAt = new Date();
+          profileData.jobUpdatedBy = userId;
+          break;
+        case 'EVENT':
+          profileData.eventData = draft.draftData;
+          profileData.eventComplete = this.isSectionComplete(draft.draftData, 'event');
+          profileData.eventUpdatedAt = new Date();
+          profileData.eventUpdatedBy = userId;
+          break;
+      }
+    }
+
+    // Upsert the profile
+    const profile = await this.userProfile.upsert({
+      where: { userId },
+      update: profileData,
+      create: profileData,
+    });
+
+    // Clear drafts after moving to profile
+    await this.userProfileDraft.deleteMany({
+      where: { userId },
+    });
+
+    return profile;
+  }
+
+  async updateUserProfile(userId: number, data: {
+    approvedAt?: Date;
+    approvedBy?: number;
+    rejectedAt?: Date;
+    rejectedBy?: number;
+    rejectionReason?: string;
+  }) {
+    return this.userProfile.update({
+      where: { userId },
+      data,
+    });
+  }
+
+  private isSectionComplete(data: any, section: string): boolean {
+    // Basic completion logic - can be enhanced based on business requirements
+    if (!data || typeof data !== 'object') {
+      return false;
+    }
+
+    const requiredFields: { [key: string]: string[] } = {
+      personal: ['firstName', 'lastName'],
+      contact: ['email', 'phone'],
+      education: ['highestQualification'],
+      job: ['occupation'],
+      event: ['primaryDiscipline'],
+    };
+
+    const fields = requiredFields[section] || [];
+    return fields.every(field => data[field] && data[field].trim() !== '');
   }
 
   // Cleanup operations

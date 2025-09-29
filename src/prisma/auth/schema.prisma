@@ -31,6 +31,13 @@ model User {
   lastLoginAt       DateTime?
   passwordChangedAt DateTime?
   isActive          Boolean   @default(true)
+  
+  // Profile Completion Flags
+  isFirstLogin      Boolean   @default(true)
+  profileCompletion Int       @default(0) // 0-100 percentage
+  profileStatus     ProfileStatus @default(DRAFT)
+  modulesUnlocked   Boolean   @default(false) // derived: true iff profileStatus=APPROVED && profileCompletion=100
+  
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
   
@@ -40,11 +47,15 @@ model User {
   auditLogs         AuditLog[]
   passwordResetTokens PasswordResetToken[]
   emailVerificationTokens EmailVerificationToken[]
+  userProfile       UserProfile?
+  profileDrafts     UserProfileDraft[]
   
   @@index([email])
   @@index([isActive])
   @@index([userType])
   @@index([tenantId])
+  @@index([profileStatus])
+  @@index([profileCompletion])
   @@map("users")
 }
 
@@ -169,6 +180,99 @@ enum UserType {
   SUPERADMIN
   ADMIN
   ATHLETE
+}
+
+enum ProfileStatus {
+  DRAFT
+  SUBMITTED
+  APPROVED
+  REJECTED
+}
+
+enum ProfileSection {
+  PERSONAL
+  CONTACT
+  EDUCATION
+  JOB
+  EVENT
+}
+
+// =============================================================================
+// PROFILE COMPLETION MODELS
+// =============================================================================
+
+model UserProfile {
+  id                Int       @id @default(autoincrement())
+  userId            Int       @unique
+  
+  // Personal Information
+  personalData      Json?     // firstName, lastName, DOB, gender, photo
+  personalComplete  Boolean   @default(false)
+  personalUpdatedAt DateTime?
+  personalUpdatedBy Int?
+  
+  // Contact Information
+  contactData       Json?     // email (verified), phone, address, city, state, country, postalCode
+  contactComplete   Boolean   @default(false)
+  contactUpdatedAt  DateTime?
+  contactUpdatedBy  Int?
+  
+  // Education Information
+  educationData     Json?     // highestQualification, institution, year
+  educationComplete Boolean   @default(false)
+  educationUpdatedAt DateTime?
+  educationUpdatedBy Int?
+  
+  // Job Information
+  jobData           Json?     // occupation, company, role, experienceYears
+  jobComplete       Boolean   @default(false)
+  jobUpdatedAt      DateTime?
+  jobUpdatedBy      Int?
+  
+  // Event/Sports Information
+  eventData         Json?     // primaryDiscipline, experienceLevel, federationId/clubId
+  eventComplete     Boolean   @default(false)
+  eventUpdatedAt    DateTime?
+  eventUpdatedBy    Int?
+  
+  // Metadata
+  dataVersion       Int       @default(1)
+  submittedAt       DateTime?
+  approvedAt        DateTime?
+  approvedBy        Int?
+  rejectedAt        DateTime?
+  rejectedBy        Int?
+  rejectionReason   String?
+  
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  
+  // Relations
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([submittedAt])
+  @@index([approvedAt])
+  @@map("user_profiles")
+}
+
+model UserProfileDraft {
+  id                Int       @id @default(autoincrement())
+  userId            Int
+  
+  // Section-specific draft data
+  section           ProfileSection
+  draftData         Json      // Partial JSON blob for the section
+  lastSavedAt       DateTime  @default(now())
+  
+  // Relations
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, section]) // One draft per section per user
+  @@index([userId])
+  @@index([section])
+  @@index([lastSavedAt])
+  @@map("user_profile_drafts")
 }
 
 // =============================================================================

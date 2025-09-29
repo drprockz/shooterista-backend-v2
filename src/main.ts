@@ -10,6 +10,7 @@ import { GlobalExceptionFilter } from '@/common/filters/global-exception.filter'
 import { FastifyExceptionFilter } from '@/common/filters/fastify-exception.filter';
 import { ResponseInterceptor } from '@/common/interceptors/response.interceptor';
 import { RateLimitInterceptor } from '@/common/interceptors/rate-limit.interceptor';
+import { ProcessSafetyService } from '@/common/services/process-safety.service';
 import { 
   createFastifyCorsOptions,
   fastifyRequestIdMiddleware,
@@ -21,6 +22,10 @@ import {
 } from '@/common/middleware/fastify-security.middleware';
 
 async function bootstrap() {
+  // Initialize process safety nets first
+  const processSafetyService = new ProcessSafetyService();
+  processSafetyService.initialize();
+
   // Log environment information at startup
   const nodeEnv = process.env.NODE_ENV || 'development';
   const envFile = nodeEnv === 'development' ? '.env.development' : 
@@ -182,7 +187,7 @@ async function bootstrap() {
 
   // Global pipes, filters, and interceptors
   app.useGlobalPipes(new ValidationPipe());
-  app.useGlobalFilters(new FastifyExceptionFilter(configService));
+  // Note: FastifyExceptionFilter removed - using GlobalExceptionFilter for GraphQL
   app.useGlobalInterceptors(new ResponseInterceptor());
 
   // Add a simple root route

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException, ForbiddenException, NotFoundException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as argon2 from 'argon2';
@@ -10,6 +10,7 @@ import { TenantContextService } from '../../infra/tenant-context/tenant-context.
 import { RateLimitService } from './services/rate-limit.service';
 import { AuditService } from './services/audit.service';
 import { OTPService } from './services/otp.service';
+import { CorrelationService, RequestContext } from '../../common/services/correlation.service';
 // import { ProfileCompletionService } from './services/profile-completion.service';
 // import { ConsentService } from './services/consent.service';
 // import { SecurityService } from './services/security.service';
@@ -30,6 +31,12 @@ import {
   AuditLogsInput,
   UserUpdateInput,
   SessionListInput,
+  SaveProfileDraftInput,
+  SubmitProfileInput,
+  AdminApproveProfileInput,
+  AdminRejectProfileInput,
+  RequestEmailOtpInput,
+  VerifyEmailOtpInput,
 } from './dto/auth.input';
 import { 
   AuthPayload, 
@@ -47,73 +54,174 @@ import {
   TokenType,
   AuditAction,
   SessionStatus,
+  ProfileCompletionStatus,
+  UserProfile,
+  UserProfileDraft,
+  ProfileDraftResponse,
+  ProfileSubmissionResponse,
+  AdminProfileActionResponse,
+  ProfileStatus,
+  ProfileSection,
+  OTPResponse,
 } from './dto/auth.types';
+// Using string literals for Prisma enums until import issue is resolved
+type PrismaProfileStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'REJECTED';
+type PrismaProfileSection = 'PERSONAL' | 'CONTACT' | 'EDUCATION' | 'JOB' | 'EVENT';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
+    private readonly prismaAuth: PrismaAuthService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly prismaAuth: PrismaAuthService,
     private readonly mfaService: MfaService,
     private readonly notificationsService: NotificationsService,
     private readonly tenantContextService: TenantContextService,
     private readonly rateLimitService: RateLimitService,
     private readonly auditService: AuditService,
     private readonly otpService: OTPService,
-    // private readonly profileCompletionService: ProfileCompletionService,
-    // private readonly consentService: ConsentService,
-    // private readonly securityService: SecurityService,
+    private readonly correlationService: CorrelationService,
   ) {}
 
+  // Helper function to convert Prisma enum to GraphQL enum
+  private convertProfileStatus(prismaStatus: PrismaProfileStatus): ProfileStatus {
+    switch (prismaStatus) {
+      case 'DRAFT':
+        return ProfileStatus.DRAFT;
+      case 'SUBMITTED':
+        return ProfileStatus.SUBMITTED;
+      case 'APPROVED':
+        return ProfileStatus.APPROVED;
+      case 'REJECTED':
+        return ProfileStatus.REJECTED;
+      default:
+        return ProfileStatus.DRAFT;
+    }
+  }
+
+  // Helper function to convert GraphQL enum to Prisma enum
+  private convertToPrismaProfileStatus(graphqlStatus: ProfileStatus): PrismaProfileStatus {
+    switch (graphqlStatus) {
+      case 'DRAFT':
+        return 'DRAFT';
+      case 'SUBMITTED':
+        return 'SUBMITTED';
+      case 'APPROVED':
+        return 'APPROVED';
+      case 'REJECTED':
+        return 'REJECTED';
+      default:
+        return 'DRAFT';
+    }
+  }
+
+
   // Registration
-  async register(input: CreateUserInput, ipAddress?: string, userAgent?: string): Promise<AuthPayload> {
+  async register(input: CreateUserInput, ipAddress?: string, userAgent?: string, requestContext?: RequestContext): Promise<AuthPayload> {
+    console.log('🔍 [DEBUG] AuthService.register called with email:', input.email);
+    console.log('🔍 [DEBUG] RequestContext:', requestContext?.requestId);
+    
+    // Create child logger with correlation context
+    const logger = requestContext 
+      ? this.correlationService.createChildLogger(this.logger, requestContext)
+      : this.logger;
+
+    try {
+      console.log('🔍 [DEBUG] About to log register.start');
+      logger.log({
+        event: 'register.start',
+        operationName: 'register',
+        tenantId: input.tenantId,
+        email: input.email,
+      });
+    
     // Check rate limiting
     const rateLimit = await this.rateLimitService.checkRateLimit('registration', input.email, ipAddress);
     if (!rateLimit.allowed) {
+      logger.warn({
+        event: 'register.rate_limit_exceeded',
+        email: input.email,
+        tenantId: input.tenantId,
+      });
       throw new ForbiddenException('Too many registration attempts. Please try again later.');
     }
 
-    // Check for suspicious IP - temporarily disabled
-    // const isSuspicious = await this.securityService.isSuspiciousIP(ipAddress || '');
-    // if (isSuspicious) {
-    //   await this.auditService.log({
-    //     action: AuditAction.LOGIN_FAILED,
-    //     ipAddress,
-    //     userAgent,
-    //     metadata: { email: input.email, reason: 'suspicious_ip' },
-    //     success: false,
-    //     tenantId: input.tenantId,
-    //   });
-    //   throw new ForbiddenException('Registration blocked due to suspicious activity');
-    // }
+    // Check if OTP email verification is required
+    const otpRequired = this.configService.get<boolean>('app.OTP_EMAIL_REQUIRED_FOR_REGISTER');
+    
+    if (otpRequired && !input.emailVerificationToken) {
+      logger.warn({
+        event: 'register.otp_token_missing',
+        email: input.email,
+        tenantId: input.tenantId,
+      });
+      throw new BadRequestException('Email verification token is required for registration');
+    }
+
+    // Validate OTP if provided
+    if (otpRequired && input.emailVerificationToken) {
+      const otpResult = this.otpService.verifyOTP(input.email, input.emailVerificationToken);
+      if (!otpResult.valid) {
+        logger.warn({
+          event: 'register.otp_validation_failed',
+          email: input.email,
+          tenantId: input.tenantId,
+          reason: otpResult.reason,
+        });
+        await this.auditService.log({
+          action: AuditAction.EMAIL_OTP_VERIFICATION_FAILED,
+          ipAddress,
+          userAgent,
+          metadata: { email: input.email, reason: otpResult.reason },
+          success: false,
+          tenantId: input.tenantId,
+        });
+        throw new UnauthorizedException(otpResult.reason || 'Invalid email verification token');
+      }
+    }
 
     const existingUser = await this.prismaAuth.findUserByEmail(input.email, input.tenantId);
     if (existingUser) {
+      logger.warn({
+        event: 'register.user_exists',
+        email: input.email,
+        tenantId: input.tenantId,
+      });
       throw new BadRequestException('User already exists');
     }
 
     // Validate consent if required
     if (input.acceptTerms === false || input.acceptPrivacy === false) {
+      logger.warn({
+        event: 'register.consent_rejected',
+        email: input.email,
+        tenantId: input.tenantId,
+      });
       throw new BadRequestException('Terms and privacy acceptance is required');
     }
 
     const hashedPassword = await this.hashPassword(input.password);
+    
     const user = await this.prismaAuth.createUser({
       ...input,
       password: hashedPassword,
+      isFirstLogin: true,
+      profileCompletion: 0,
+      profileStatus: 'DRAFT',
+      modulesUnlocked: false,
     });
 
-    // Record consent - temporarily disabled
-    // if (input.acceptTerms && input.acceptPrivacy) {
-    //   await this.consentService.recordConsent(
-    //     user.id,
-    //     input.acceptTerms,
-    //     input.acceptPrivacy,
-    //     ipAddress,
-    //     userAgent
-    //   );
-    // }
+    logger.log({
+      event: 'register.core_validations.ok',
+      email: input.email,
+      tenantId: input.tenantId,
+      userId: user.id,
+    });
+
+    // Log feature flags and config presence snapshot
+    this.correlationService.logFeatureFlagsAndConfig(logger, this.configService);
 
     // Create email verification token
     const verificationToken = crypto.randomBytes(32).toString('hex');
@@ -125,14 +233,138 @@ export class AuthService {
       expiresAt,
     });
 
-    // Generate OTP for email verification
-    const { code: otpCode, expiresAt: otpExpiresAt } = this.otpService.createOTP(input.email);
+    // Generate OTP for email verification (only if not already verified)
+    if (!otpRequired || !input.emailVerificationToken) {
+      const { code: otpCode, expiresAt: otpExpiresAt } = this.otpService.createOTP(input.email);
 
-    // Send notifications via NotificationsService
-    const tenantMeta = this.tenantContextService.getTenantMeta({ tenantId: input.tenantId });
-    
-    await this.notificationsService.sendWelcomeEmail(user.email, user.firstName, tenantMeta);
-    await this.notificationsService.sendOTPEmail(user.email, otpCode, user.firstName, tenantMeta);
+      // Send notifications via NotificationsService
+      const tenantMeta = this.tenantContextService.getTenantMeta({ tenantId: input.tenantId });
+      
+      // Send welcome email with comprehensive error handling
+      try {
+        logger.log({
+          event: 'register.mail.start',
+          template: 'welcome-email',
+          transport: 'smtp',
+          email: user.email,
+        });
+
+        const welcomeResult = await this.notificationsService.sendWelcomeEmail(user.email, user.firstName, tenantMeta);
+        
+        if (welcomeResult.success) {
+          logger.log({
+            event: 'register.mail.ok',
+            template: 'welcome-email',
+            duration_ms: Date.now() - requestContext?.startTime || 0,
+            messageId: welcomeResult.messageId,
+          });
+        } else {
+          logger.error({
+            event: 'register.mail.err',
+            template: 'welcome-email',
+            error: {
+              name: 'EmailSendError',
+              message: welcomeResult.error,
+              stack_present: false,
+            },
+          });
+        }
+      } catch (error) {
+        logger.error({
+          event: 'register.mail.err',
+          template: 'welcome-email',
+          error: {
+            name: error instanceof Error ? error.name : 'UnknownError',
+            message: error instanceof Error ? error.message : 'Unknown error',
+            stack_present: error instanceof Error ? !!error.stack : false,
+          },
+        });
+      }
+      
+      // Send OTP email with comprehensive error handling
+      try {
+        logger.log({
+          event: 'register.mail.start',
+          template: 'otp-email',
+          transport: 'smtp',
+          email: user.email,
+        });
+
+        const otpResult = await this.notificationsService.sendOTPEmail(user.email, otpCode, user.firstName, tenantMeta);
+        
+        if (otpResult.success) {
+          logger.log({
+            event: 'register.mail.ok',
+            template: 'otp-email',
+            duration_ms: Date.now() - requestContext?.startTime || 0,
+            messageId: otpResult.messageId,
+          });
+        } else {
+          logger.error({
+            event: 'register.mail.err',
+            template: 'otp-email',
+            error: {
+              name: 'EmailSendError',
+              message: otpResult.error,
+              stack_present: false,
+            },
+          });
+        }
+      } catch (error) {
+        logger.error({
+          event: 'register.mail.err',
+          template: 'otp-email',
+          error: {
+            name: error instanceof Error ? error.name : 'UnknownError',
+            message: error instanceof Error ? error.message : 'Unknown error',
+            stack_present: error instanceof Error ? !!error.stack : false,
+          },
+        });
+      }
+    } else {
+      // Send welcome email only since OTP was already verified
+      const tenantMeta = this.tenantContextService.getTenantMeta({ tenantId: input.tenantId });
+      
+      try {
+        logger.log({
+          event: 'register.mail.start',
+          template: 'welcome-email',
+          transport: 'smtp',
+          email: user.email,
+        });
+
+        const welcomeResult = await this.notificationsService.sendWelcomeEmail(user.email, user.firstName, tenantMeta);
+        
+        if (welcomeResult.success) {
+          logger.log({
+            event: 'register.mail.ok',
+            template: 'welcome-email',
+            duration_ms: Date.now() - requestContext?.startTime || 0,
+            messageId: welcomeResult.messageId,
+          });
+        } else {
+          logger.error({
+            event: 'register.mail.err',
+            template: 'welcome-email',
+            error: {
+              name: 'EmailSendError',
+              message: welcomeResult.error,
+              stack_present: false,
+            },
+          });
+        }
+      } catch (error) {
+        logger.error({
+          event: 'register.mail.err',
+          template: 'welcome-email',
+          error: {
+            name: error instanceof Error ? error.name : 'UnknownError',
+            message: error instanceof Error ? error.message : 'Unknown error',
+            stack_present: error instanceof Error ? !!error.stack : false,
+          },
+        });
+      }
+    }
 
     // Log audit event
     await this.auditService.logEmailVerificationRequest(user.id, ipAddress, userAgent, {
@@ -157,6 +389,20 @@ export class AuthService {
     // Log session creation
     await this.auditService.logSessionCreated(user.id, session.id, ipAddress, userAgent);
 
+    logger.log({
+      event: 'register.success',
+      email: input.email,
+      tenantId: input.tenantId,
+      userId: user.id,
+      elapsed_ms: Date.now() - (requestContext?.startTime || Date.now()),
+      initial_flags: {
+        isFirstLogin: user.isFirstLogin,
+        profileStatus: user.profileStatus,
+        profileCompletion: user.profileCompletion,
+        modulesUnlocked: user.modulesUnlocked,
+      },
+    });
+    
     return {
       user: this.mapUserToGraphQL(user),
       ...tokens,
@@ -164,6 +410,37 @@ export class AuthService {
       requiresConsent: !(input.acceptTerms && input.acceptPrivacy),
       sessionId: session.id,
     };
+    } catch (error) {
+      logger.error({
+        event: 'register.error',
+        email: input.email,
+        tenantId: input.tenantId,
+        elapsed_ms: Date.now() - (requestContext?.startTime || Date.now()),
+        error: {
+          name: error instanceof Error ? error.name : 'UnknownError',
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack_present: error instanceof Error ? !!error.stack : false,
+        },
+      });
+      
+      // Special handling for .url access errors
+      if (error instanceof TypeError && error.message?.includes("Cannot read properties of undefined (reading 'url')")) {
+        logger.error({
+          event: 'register.url_access_error',
+          email: input.email,
+          tenantId: input.tenantId,
+          error: {
+            name: 'TypeError',
+            message: error.message,
+            stack_present: !!error.stack,
+          },
+        });
+        
+        throw new Error('Template processing error - logo configuration issue');
+      }
+      
+      throw error;
+    }
   }
 
   // Login
@@ -1047,6 +1324,11 @@ export class AuthService {
       tenantId: user.tenantId,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+      // Profile Completion Fields
+      isFirstLogin: user.isFirstLogin ?? true,
+      profileCompletion: user.profileCompletion ?? 0,
+      profileStatus: this.convertProfileStatus(user.profileStatus ?? 'DRAFT'),
+      modulesUnlocked: user.modulesUnlocked ?? false,
       roles: [], // Temporarily disabled
       permissions: [], // Temporarily disabled
     };
@@ -1262,5 +1544,442 @@ export class AuthService {
       to: [to],
       tenantMeta,
     });
+  }
+
+  // =============================================================================
+  // PROFILE COMPLETION METHODS
+  // =============================================================================
+
+  // Get profile completion status
+  async getProfileCompletion(userId: number): Promise<ProfileCompletionStatus> {
+    const user = await this.prismaAuth.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const profile = await this.prismaAuth.findUserProfile(userId);
+    const drafts = await this.prismaAuth.findUserProfileDrafts(userId);
+
+    // Calculate completion percentage
+    const sections = [ProfileSection.PERSONAL, ProfileSection.CONTACT, ProfileSection.EDUCATION, ProfileSection.JOB, ProfileSection.EVENT];
+    const completedSections: string[] = [];
+    const missingSections: string[] = [];
+
+    let completionPercentage = 0;
+    if (profile) {
+      if (profile.personalComplete) {
+        completedSections.push(ProfileSection.PERSONAL);
+        completionPercentage += 20;
+      } else {
+        missingSections.push(ProfileSection.PERSONAL);
+      }
+
+      if (profile.contactComplete) {
+        completedSections.push(ProfileSection.CONTACT);
+        completionPercentage += 20;
+      } else {
+        missingSections.push(ProfileSection.CONTACT);
+      }
+
+      if (profile.educationComplete) {
+        completedSections.push(ProfileSection.EDUCATION);
+        completionPercentage += 20;
+      } else {
+        missingSections.push(ProfileSection.EDUCATION);
+      }
+
+      if (profile.jobComplete) {
+        completedSections.push(ProfileSection.JOB);
+        completionPercentage += 20;
+      } else {
+        missingSections.push(ProfileSection.JOB);
+      }
+
+      if (profile.eventComplete) {
+        completedSections.push(ProfileSection.EVENT);
+        completionPercentage += 20;
+      } else {
+        missingSections.push(ProfileSection.EVENT);
+      }
+    } else {
+      missingSections.push(...sections);
+    }
+
+    const isComplete = completionPercentage === 100;
+    const modulesUnlocked = isComplete && user.profileStatus === 'APPROVED';
+
+    return {
+      isComplete,
+      completionPercentage,
+      profileStatus: this.convertProfileStatus(user.profileStatus),
+      modulesUnlocked,
+      isFirstLogin: user.isFirstLogin,
+      missingSections,
+      completedSections,
+    };
+  }
+
+  // Get user profile
+  async getUserProfile(userId: number): Promise<UserProfile | null> {
+    const profile = await this.prismaAuth.findUserProfile(userId);
+    if (!profile) {
+      return null;
+    }
+
+    return this.mapUserProfileToGraphQL(profile);
+  }
+
+  // Get user profile drafts
+  async getUserProfileDrafts(userId: number): Promise<UserProfileDraft[]> {
+    const drafts = await this.prismaAuth.findUserProfileDrafts(userId);
+    return drafts.map(draft => this.mapUserProfileDraftToGraphQL(draft));
+  }
+
+  // Save profile draft
+  async saveProfileDraft(userId: number, input: SaveProfileDraftInput, ipAddress?: string, userAgent?: string): Promise<ProfileDraftResponse> {
+    const user = await this.prismaAuth.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Check if user can edit (only if status is DRAFT or REJECTED)
+    if (user.profileStatus !== 'DRAFT' && user.profileStatus !== 'REJECTED') {
+      throw new ForbiddenException('Profile is locked for editing');
+    }
+
+    try {
+      // Validate JSON payload
+      const payloadData = JSON.parse(input.payload);
+      
+      // Save or update draft
+      const draft = await this.prismaAuth.upsertUserProfileDraft({
+        userId,
+        section: input.section,
+        draftData: payloadData,
+        lastSavedAt: new Date(),
+      });
+
+      // Calculate section completion
+      const sectionStatus = await this.calculateSectionCompletion(userId, input.section);
+
+      // Log draft save
+      await this.auditService.log({
+        action: AuditAction.PROFILE_DRAFT_SAVED,
+        userId,
+        ipAddress,
+        userAgent,
+        metadata: { section: input.section },
+        success: true,
+        tenantId: user.tenantId,
+      });
+
+      return {
+        success: true,
+        message: 'Profile draft saved successfully',
+        draft: this.mapUserProfileDraftToGraphQL(draft),
+        sectionStatus,
+      };
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        throw new BadRequestException('Invalid JSON payload');
+      }
+      throw error;
+    }
+  }
+
+  // Submit profile for approval
+  async submitProfile(userId: number, input: SubmitProfileInput, ipAddress?: string, userAgent?: string): Promise<ProfileSubmissionResponse> {
+    const user = await this.prismaAuth.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Check if user can submit (only if status is DRAFT or REJECTED)
+    if (user.profileStatus !== 'DRAFT' && user.profileStatus !== 'REJECTED') {
+      throw new ForbiddenException('Profile cannot be submitted at this time');
+    }
+
+    // Get current profile completion
+    const completionStatus = await this.getProfileCompletion(userId);
+    
+    // Require minimum completion (e.g., 80%)
+    if (completionStatus.completionPercentage < 80) {
+      throw new BadRequestException('Profile must be at least 80% complete before submission');
+    }
+
+    // Move drafts to profile
+    await this.prismaAuth.moveDraftsToProfile(userId);
+
+    // Update user status
+    await this.prismaAuth.updateUser(userId, {
+      profileStatus: 'SUBMITTED',
+    });
+
+    // Log profile submission
+    await this.auditService.log({
+      action: AuditAction.PROFILE_SUBMITTED,
+      userId,
+      ipAddress,
+      userAgent,
+      metadata: { completionPercentage: completionStatus.completionPercentage },
+      success: true,
+      tenantId: user.tenantId,
+    });
+
+    return {
+      success: true,
+      message: 'Profile submitted for approval',
+      newStatus: ProfileStatus.SUBMITTED,
+      completionPercentage: completionStatus.completionPercentage,
+    };
+  }
+
+  // Admin approve profile
+  async adminApproveProfile(adminId: number, input: AdminApproveProfileInput, ipAddress?: string, userAgent?: string): Promise<AdminProfileActionResponse> {
+    const targetUserId = parseInt(input.userId);
+    const user = await this.prismaAuth.findUserById(targetUserId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Check if profile is submitted
+    if (user.profileStatus !== 'SUBMITTED') {
+      throw new BadRequestException('Profile must be submitted before approval');
+    }
+
+    // Update user status and unlock modules
+    await this.prismaAuth.updateUser(targetUserId, {
+      profileStatus: 'APPROVED',
+      isFirstLogin: false,
+      modulesUnlocked: true,
+      profileCompletion: 100,
+    });
+
+    // Update profile approval metadata
+    await this.prismaAuth.updateUserProfile(targetUserId, {
+      approvedAt: new Date(),
+      approvedBy: adminId,
+    });
+
+    // Log admin approval
+    await this.auditService.log({
+      action: AuditAction.PROFILE_APPROVED,
+      userId: targetUserId,
+      ipAddress,
+      userAgent,
+      metadata: { approvedBy: adminId },
+      success: true,
+      tenantId: user.tenantId,
+    });
+
+    return {
+      success: true,
+      message: 'Profile approved successfully',
+      newStatus: ProfileStatus.APPROVED,
+      modulesUnlocked: true,
+    };
+  }
+
+  // Admin reject profile
+  async adminRejectProfile(adminId: number, input: AdminRejectProfileInput, ipAddress?: string, userAgent?: string): Promise<AdminProfileActionResponse> {
+    const targetUserId = parseInt(input.userId);
+    const user = await this.prismaAuth.findUserById(targetUserId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Check if profile is submitted
+    if (user.profileStatus !== 'SUBMITTED') {
+      throw new BadRequestException('Profile must be submitted before rejection');
+    }
+
+    // Update user status
+    await this.prismaAuth.updateUser(targetUserId, {
+      profileStatus: 'REJECTED',
+      modulesUnlocked: false,
+    });
+
+    // Update profile rejection metadata
+    await this.prismaAuth.updateUserProfile(targetUserId, {
+      rejectedAt: new Date(),
+      rejectedBy: adminId,
+      rejectionReason: input.reason,
+    });
+
+    // Log admin rejection
+    await this.auditService.log({
+      action: AuditAction.PROFILE_REJECTED,
+      userId: targetUserId,
+      ipAddress,
+      userAgent,
+      metadata: { rejectedBy: adminId, reason: input.reason },
+      success: true,
+      tenantId: user.tenantId,
+    });
+
+    return {
+      success: true,
+      message: 'Profile rejected',
+      newStatus: ProfileStatus.REJECTED,
+      rejectionReason: input.reason,
+      modulesUnlocked: false,
+    };
+  }
+
+  // Request email OTP for registration
+  async requestEmailOtp(input: RequestEmailOtpInput, ipAddress?: string, userAgent?: string): Promise<OTPResponse> {
+    console.log(`🔐 [OTP REQUEST] Starting OTP request for email: ${input.email}`);
+    
+    // Check rate limiting
+    const rateLimit = await this.rateLimitService.checkRateLimit('emailOtp', input.email, ipAddress);
+    if (!rateLimit.allowed) {
+      console.log(`❌ [OTP REQUEST] Rate limit exceeded for email: ${input.email}`);
+      throw new ForbiddenException('Too many OTP requests. Please try again later.');
+    }
+    console.log(`✅ [OTP REQUEST] Rate limit check passed for email: ${input.email}`);
+
+    // Generate OTP
+    const { code, expiresAt } = this.otpService.createOTP(input.email);
+    console.log(`🔑 [OTP REQUEST] Generated OTP code: ${code} for email: ${input.email}`);
+
+    try {
+      // Send OTP email
+      console.log(`📧 [OTP REQUEST] Attempting to send OTP email to: ${input.email}`);
+      const tenantMeta = this.tenantContextService.getTenantMeta({ tenantId: input.tenantId });
+      
+      const emailResult = await this.notificationsService.sendOTPEmail(input.email, code, undefined, tenantMeta);
+      
+      if (emailResult.success) {
+        console.log(`✅ [OTP REQUEST] Email sent successfully! MessageId: ${emailResult.messageId}`);
+        console.log(`📧 [OTP REQUEST] OTP Code for ${input.email}: ${code}`);
+      } else {
+        console.log(`❌ [OTP REQUEST] Email sending failed: ${emailResult.error}`);
+        throw new Error(`Failed to send OTP email: ${emailResult.error}`);
+      }
+
+      // Log OTP request
+      await this.auditService.log({
+        action: AuditAction.EMAIL_OTP_REQUEST,
+        ipAddress,
+        userAgent,
+        metadata: { email: input.email, type: 'registration' },
+        success: true,
+        tenantId: input.tenantId,
+      });
+
+      console.log(`🎉 [OTP REQUEST] OTP request completed successfully for email: ${input.email}`);
+      return {
+        success: true,
+        message: 'OTP sent successfully',
+        expiresAt,
+      };
+    } catch (error) {
+      console.log(`❌ [OTP REQUEST] Error sending OTP email to ${input.email}:`, error.message);
+      
+      // Log failed OTP request
+      await this.auditService.log({
+        action: AuditAction.EMAIL_OTP_REQUEST,
+        ipAddress,
+        userAgent,
+        metadata: { email: input.email, type: 'registration', error: error.message },
+        success: false,
+        tenantId: input.tenantId,
+      });
+      
+      throw error;
+    }
+  }
+
+  // Verify email OTP for registration
+  async verifyEmailOtp(input: VerifyEmailOtpInput, ipAddress?: string, userAgent?: string): Promise<OTPResponse> {
+    // Verify OTP
+    const result = this.otpService.verifyOTP(input.email, input.code);
+    
+    if (!result.valid) {
+      await this.auditService.log({
+        action: AuditAction.EMAIL_OTP_VERIFICATION_FAILED,
+        ipAddress,
+        userAgent,
+        metadata: { email: input.email, reason: result.reason },
+        success: false,
+        tenantId: input.tenantId,
+      });
+      throw new UnauthorizedException(result.reason || 'Invalid OTP');
+    }
+
+    // Log successful verification
+    await this.auditService.log({
+      action: AuditAction.EMAIL_OTP_VERIFIED,
+      ipAddress,
+      userAgent,
+      metadata: { email: input.email },
+      success: true,
+      tenantId: input.tenantId,
+    });
+
+    return {
+      success: true,
+      message: 'OTP verified successfully',
+    };
+  }
+
+  // Helper methods
+  private async calculateSectionCompletion(userId: number, section: ProfileSection): Promise<any> {
+    // This would contain the business logic for determining section completion
+    // For now, return a basic structure
+    return {
+      section,
+      isComplete: false,
+      completionPercentage: 0,
+      missingFields: [],
+      lastUpdatedAt: new Date(),
+      lastUpdatedBy: userId.toString(),
+    };
+  }
+
+  private mapUserProfileToGraphQL(profile: any): UserProfile {
+    return {
+      id: profile.id.toString(),
+      userId: profile.userId.toString(),
+      personalData: profile.personalData ? JSON.stringify(profile.personalData) : null,
+      personalComplete: profile.personalComplete,
+      personalUpdatedAt: profile.personalUpdatedAt,
+      personalUpdatedBy: profile.personalUpdatedBy?.toString(),
+      contactData: profile.contactData ? JSON.stringify(profile.contactData) : null,
+      contactComplete: profile.contactComplete,
+      contactUpdatedAt: profile.contactUpdatedAt,
+      contactUpdatedBy: profile.contactUpdatedBy?.toString(),
+      educationData: profile.educationData ? JSON.stringify(profile.educationData) : null,
+      educationComplete: profile.educationComplete,
+      educationUpdatedAt: profile.educationUpdatedAt,
+      educationUpdatedBy: profile.educationUpdatedBy?.toString(),
+      jobData: profile.jobData ? JSON.stringify(profile.jobData) : null,
+      jobComplete: profile.jobComplete,
+      jobUpdatedAt: profile.jobUpdatedAt,
+      jobUpdatedBy: profile.jobUpdatedBy?.toString(),
+      eventData: profile.eventData ? JSON.stringify(profile.eventData) : null,
+      eventComplete: profile.eventComplete,
+      eventUpdatedAt: profile.eventUpdatedAt,
+      eventUpdatedBy: profile.eventUpdatedBy?.toString(),
+      dataVersion: profile.dataVersion,
+      submittedAt: profile.submittedAt,
+      approvedAt: profile.approvedAt,
+      approvedBy: profile.approvedBy?.toString(),
+      rejectedAt: profile.rejectedAt,
+      rejectedBy: profile.rejectedBy?.toString(),
+      rejectionReason: profile.rejectionReason,
+      createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt,
+    };
+  }
+
+  private mapUserProfileDraftToGraphQL(draft: any): UserProfileDraft {
+    return {
+      id: draft.id.toString(),
+      userId: draft.userId.toString(),
+      section: draft.section,
+      draftData: JSON.stringify(draft.draftData),
+      lastSavedAt: draft.lastSavedAt,
+    };
   }
 }

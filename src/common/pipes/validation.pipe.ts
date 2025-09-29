@@ -17,12 +17,28 @@ export class ValidationPipe implements PipeTransform<any> {
     });
 
     if (errors.length > 0) {
-      const errorMessages = errors.map(error => {
-        return Object.values(error.constraints || {}).join(', ');
+      // Create detailed validation error messages
+      const validationErrors = errors.map(error => {
+        const field = error.property;
+        const constraints = error.constraints || {};
+        const firstConstraint = Object.values(constraints)[0] as string;
+        
+        return {
+          field,
+          message: firstConstraint,
+          constraints: Object.keys(constraints),
+          value: error.value,
+        };
       });
+
+      // Throw the first validation error with detailed information
+      const firstError = validationErrors[0];
       throw new BadRequestException({
-        message: 'Validation failed',
-        errors: errorMessages,
+        message: firstError.message,
+        field: firstError.field,
+        constraints: firstError.constraints,
+        code: 'BAD_USER_INPUT',
+        validationErrors, // Include all errors for debugging
       });
     }
 

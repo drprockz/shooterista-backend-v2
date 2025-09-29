@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { ExecutionContext } from '@nestjs/common';
 import { CsrfInterceptor } from '../interceptors/csrf.interceptor';
+import { CorrelationService, RequestContext } from '../services/correlation.service';
 
 export interface GraphQLContext {
   req: any;
@@ -16,16 +17,21 @@ export interface GraphQLContext {
   csrfToken?: string;
   ipAddress?: string;
   userAgent?: string;
+  requestContext?: RequestContext;
 }
 
 @Injectable()
 export class GraphQLContextService {
-  constructor(private readonly csrfInterceptor: CsrfInterceptor) {}
+  constructor(
+    private readonly csrfInterceptor: CsrfInterceptor,
+    private readonly correlationService: CorrelationService,
+  ) {}
 
   createContext(executionContext: ExecutionContext): GraphQLContext {
     const ctx = GqlExecutionContext.create(executionContext);
     const request = ctx.getContext().req;
     const response = ctx.getContext().res;
+    const info = ctx.getInfo();
 
     // Extract user information from request
     const user = request.user ? {
@@ -35,6 +41,23 @@ export class GraphQLContextService {
       roles: request.user.roles || [],
       permissions: request.user.permissions || [],
     } : undefined;
+
+    // Generate correlation ID from header or create new one
+    const requestId = request.headers['x-request-id'] || this.correlationService.generateRequestId();
+
+    // Create request context
+    const requestContext = this.correlationService.createRequestContext(
+      info?.fieldName,
+      user?.email,
+      user?.tenantId,
+      request.ip,
+      request.headers['user-agent']
+    );
+
+    // Override requestId if provided in header
+    if (request.headers['x-request-id']) {
+      requestContext.requestId = request.headers['x-request-id'];
+    }
 
     // Generate CSRF token for mutations
     const csrfToken = this.generateCsrfToken(request);
@@ -46,6 +69,7 @@ export class GraphQLContextService {
       csrfToken,
       ipAddress: request.ip,
       userAgent: request.headers['user-agent'],
+      requestContext,
     };
   }
 

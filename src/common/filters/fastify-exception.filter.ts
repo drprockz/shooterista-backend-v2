@@ -41,8 +41,8 @@ export class FastifyExceptionFilter implements ExceptionFilter {
 
   private buildErrorResponse(exception: unknown, request: FastifyRequest): ErrorResponse {
     const timestamp = new Date().toISOString();
-    const path = request.url;
-    const requestId = request.headers['x-request-id'] as string;
+    const path = request?.url || 'unknown';
+    const requestId = request?.headers?.['x-request-id'] as string;
 
     // Handle HTTP exceptions
     if (exception instanceof HttpException) {
@@ -151,7 +151,10 @@ export class FastifyExceptionFilter implements ExceptionFilter {
   }
 
   private logError(exception: unknown, request: FastifyRequest, errorResponse: ErrorResponse): void {
-    const { method, url, ip, headers } = request;
+    const method = request?.method || 'unknown';
+    const url = request?.url || 'unknown';
+    const ip = request?.ip || 'unknown';
+    const headers = request?.headers || {};
     const { statusCode, error, message, code } = errorResponse;
 
     const logContext = {

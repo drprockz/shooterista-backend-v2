@@ -1,0 +1,92 @@
+
+> shooterista-backend@1.0.0 start:dev
+> nest start --watch
+
+
+ Info  Webpack is building your sources...
+
+webpack 5.97.1 compiled [1m[32msuccessfully[39m[22m in 699 ms
+Type-checking in progress...
+📁 Loading environment from: .env.development
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [ProcessSafetyService] Initializing process safety nets
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [ProcessSafetyService] Process safety nets initialized successfully
+🚀 Starting Shooterista Backend
+📁 Environment: development
+📄 Config file: .env.development
+⏰ Started at: 2025-09-29T10:18:40.848Z
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [NestFactory] Starting Nest application... +10ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] AppModule dependencies initialized +18ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] AppConfigModule dependencies initialized +1ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] BullInfraModule dependencies initialized +3ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] S3Module dependencies initialized +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] ConfigHostModule dependencies initialized +2ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] ConfigModule dependencies initialized +5ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] ConfigModule dependencies initialized +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] TerminusModule dependencies initialized +0ms
+📧 [PROVIDER FACTORY] Selected email provider: smtp
+📧 [PROVIDER FACTORY] Creating SmtpEmailAdapter
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] TenantContextModule dependencies initialized +5ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] JwtModule dependencies initialized +4ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] JwtModule dependencies initialized +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] NotificationsModule dependencies initialized +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] GraphQLSchemaBuilderModule dependencies initialized +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] HealthModule dependencies initialized +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] TenantModule dependencies initialized +1ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] UserModule dependencies initialized +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] GraphQLModule dependencies initialized +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] GqlModule dependencies initialized +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [InstanceLoader] AuthModule dependencies initialized +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RoutesResolver] AuthController {/auth}: +27ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/auth/register, POST} route +1ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/auth/login, POST} route +1ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/auth/refresh, POST} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/auth/logout, POST} route +1ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/auth/logout-all, POST} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/auth/me, GET} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/auth/password/change, POST} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/auth/password/reset/request, POST} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/auth/password/reset, POST} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/auth/email/verify, POST} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/auth/email/resend, POST} route +1ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/auth/mfa/setup, POST} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/auth/mfa/enable, POST} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/auth/mfa/disable, POST} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RoutesResolver] TenantController {/tenant}: +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/tenant, POST} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/tenant/:id, GET} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/tenant/slug/:slug, GET} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/tenant/:id, PUT} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/tenant/invite, POST} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/tenant/my/tenants, GET} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/tenant/:id/users, GET} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/tenant/switch, POST} route +1ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RoutesResolver] UserController {/user}: +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/user/profile, GET} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/user/profile, PUT} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/user/activities, GET} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/user/notifications, GET} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/user/preferences, GET} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RoutesResolver] HealthController {/health}: +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/health, GET} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/health/ready, GET} route +0ms
+[Nest] 46945  - 09/29/2025, 3:48:40 PM     LOG [RouterExplorer] Mapped {/health/live, GET} route +0ms
+[2025-09-29 15:48:40.922 +0530] [32mINFO[39m (46945): [36m📚 Swagger documentation available at: http://localhost:5001/api/docs[39m
+✅ Auth database connected successfully
+[Nest] 46945  - 09/29/2025, 3:48:41 PM     LOG [GraphQLModule] Mapped {/graphql, POST} route +630ms
+[Nest] 46945  - 09/29/2025, 3:48:41 PM     LOG [NestApplication] Nest application successfully started +0ms
+[Nest] 46945  - 09/29/2025, 3:48:41 PM   ERROR [NestApplication] Error: listen EADDRINUSE: address already in use 0.0.0.0:5001 +4ms
+❌ Error starting server: Error: listen EADDRINUSE: address already in use 0.0.0.0:5001
+    at Server.setupListenHandle [as _listen2] (node:net:1937:16)
+    at listenInCluster (node:net:1994:12)
+    at node:net:2203:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'EADDRINUSE',
+  errno: -48,
+  syscall: 'listen',
+  address: '0.0.0.0',
+  port: 5001
+}
+No errors found.

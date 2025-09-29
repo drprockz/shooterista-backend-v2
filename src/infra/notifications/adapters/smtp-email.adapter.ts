@@ -12,7 +12,37 @@ export class SmtpEmailAdapter implements SendEmailPort {
   constructor(private readonly configService: ConfigService) {}
 
   async send(params: SendEmailParams): Promise<SendEmailResult> {
+    const startTime = Date.now();
+    const requestId = this.generateRequestId();
+    
     try {
+      this.logger.debug(`Starting SMTP email send`, {
+        event: 'smtp_send_start',
+        templateKey: params.templateKey,
+        requestId,
+        recipients: params.to.length,
+        transport: 'smtp'
+      });
+
+      // Check if email is disabled
+      const emailEnabled = this.configService.get<boolean>('app.EMAIL_ENABLED', false);
+      if (!emailEnabled) {
+        this.logger.log(`Email sending disabled, skipping`, {
+          event: 'email_disabled',
+          templateKey: params.templateKey,
+          requestId,
+          skipped: true
+        });
+        
+        return {
+          success: true,
+          messageId: null,
+          error: null,
+          provider: 'smtp',
+          timestamp: new Date(),
+        };
+      }
+
       const transporter = await this.getTransporter();
       const messageId = `smtp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
@@ -31,12 +61,19 @@ export class SmtpEmailAdapter implements SendEmailPort {
         mailOptions.replyTo = params.tenantMeta.replyToEmail;
       }
 
-      this.logger.debug(`Sending SMTP email to ${mailOptions.to}`);
-
       // Send email
       const info = await transporter.sendMail(mailOptions);
-
-      this.logger.log(`SMTP email sent successfully. Message ID: ${info.messageId}`);
+      
+      const duration = Date.now() - startTime;
+      this.logger.log(`SMTP email sent successfully`, {
+        event: 'smtp_send_success',
+        templateKey: params.templateKey,
+        requestId,
+        duration_ms: duration,
+        recipients: params.to.length,
+        messageId: info.messageId || messageId,
+        transport: 'smtp'
+      });
 
       return {
         success: true,
@@ -45,7 +82,21 @@ export class SmtpEmailAdapter implements SendEmailPort {
         timestamp: new Date(),
       };
     } catch (error) {
-      this.logger.error(`Failed to send SMTP email: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      const duration = Date.now() - startTime;
+      this.logger.error(`SMTP email send failed`, {
+        event: 'smtp_send_error',
+        templateKey: params.templateKey,
+        requestId,
+        duration_ms: duration,
+        recipients: params.to.length,
+        transport: 'smtp',
+        error: {
+          name: error instanceof Error ? error.name : 'UnknownError',
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack_present: error instanceof Error ? !!error.stack : false
+        }
+      });
+
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -53,6 +104,10 @@ export class SmtpEmailAdapter implements SendEmailPort {
         timestamp: new Date(),
       };
     }
+  }
+
+  private generateRequestId(): string {
+    return `smtp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
   private async getTransporter(): Promise<Transporter> {

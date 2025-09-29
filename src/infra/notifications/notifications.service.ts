@@ -22,12 +22,22 @@ export class NotificationsService {
   ) {}
 
   async send(params: NotificationParams): Promise<SendEmailResult> {
+    const startTime = Date.now();
+    const requestId = this.generateRequestId();
+    
     try {
-      this.logger.debug(`Sending notification: ${params.templateKey} to ${params.to.join(', ')}`);
+      this.logger.debug(`Starting email send`, {
+        event: 'email_send_start',
+        templateKey: params.templateKey,
+        requestId,
+        recipients: params.to.length,
+        hasData: !!params.data,
+        hasTenantMeta: !!params.tenantMeta
+      });
 
       // Resolve tenant meta if not provided
       const tenantMeta = params.tenantMeta || this.getDefaultTenantMeta();
-
+      
       // Render template
       const renderedTemplate = await this.renderTemplatePort.render(
         params.templateKey,
@@ -49,19 +59,46 @@ export class NotificationsService {
       // Send email
       const result = await this.sendEmailPort.send(emailParams);
 
-      // Audit/log
-      this.logger.log(`Notification sent: ${params.templateKey} to ${params.to.join(', ')} - Success: ${result.success}`);
+      const duration = Date.now() - startTime;
+      this.logger.log(`Email sent successfully`, {
+        event: 'email_send_success',
+        templateKey: params.templateKey,
+        requestId,
+        duration_ms: duration,
+        recipients: params.to.length,
+        success: result.success,
+        messageId: result.messageId
+      });
 
       return result;
     } catch (error) {
-      this.logger.error(`Failed to send notification: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      const duration = Date.now() - startTime;
+      this.logger.error(`Error sending email`, {
+        event: 'email_send_error',
+        templateKey: params.templateKey,
+        requestId,
+        duration_ms: duration,
+        recipients: params.to.length,
+        error: {
+          name: error instanceof Error ? error.name : 'UnknownError',
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack_present: error instanceof Error ? !!error.stack : false
+        }
+      });
+
+      // Return a failed result instead of throwing
       return {
         success: false,
+        messageId: null,
         error: error instanceof Error ? error.message : 'Unknown error',
         provider: 'unknown',
         timestamp: new Date(),
       };
     }
+  }
+
+  private generateRequestId(): string {
+    return `email_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
   // Utility method for domain modules
@@ -75,12 +112,25 @@ export class NotificationsService {
   }
 
   async sendOTPEmail(email: string, code: string, firstName?: string, tenantMeta?: TenantMeta): Promise<SendEmailResult> {
-    return this.send({
-      templateKey: 'otp-email',
-      data: { code, firstName: firstName || 'User' },
-      to: [email],
-      tenantMeta,
-    });
+    console.log(`📧 [NOTIFICATIONS] sendOTPEmail called for: ${email}`);
+    console.log(`📧 [NOTIFICATIONS] OTP Code: ${code}`);
+    console.log(`📧 [NOTIFICATIONS] First Name: ${firstName || 'User'}`);
+    console.log(`📧 [NOTIFICATIONS] Tenant Meta:`, tenantMeta);
+    
+    try {
+      const result = await this.send({
+        templateKey: 'otp-email',
+        data: { code, firstName: firstName || 'User' },
+        to: [email],
+        tenantMeta,
+      });
+      
+      console.log(`📧 [NOTIFICATIONS] sendOTPEmail result:`, result);
+      return result;
+    } catch (error) {
+      console.log(`❌ [NOTIFICATIONS] sendOTPEmail error:`, error.message);
+      throw error;
+    }
   }
 
   private getDefaultTenantMeta(): TenantMeta {

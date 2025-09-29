@@ -40,6 +40,15 @@ export enum AuditAction {
   PERMISSION_REVOKED = 'PERMISSION_REVOKED',
   ACCOUNT_LOCKED = 'ACCOUNT_LOCKED',
   ACCOUNT_UNLOCKED = 'ACCOUNT_UNLOCKED',
+  // Profile Completion Actions
+  PROFILE_DRAFT_SAVED = 'PROFILE_DRAFT_SAVED',
+  PROFILE_SUBMITTED = 'PROFILE_SUBMITTED',
+  PROFILE_APPROVED = 'PROFILE_APPROVED',
+  PROFILE_REJECTED = 'PROFILE_REJECTED',
+  // OTP Actions
+  EMAIL_OTP_REQUEST = 'EMAIL_OTP_REQUEST',
+  EMAIL_OTP_VERIFIED = 'EMAIL_OTP_VERIFIED',
+  EMAIL_OTP_VERIFICATION_FAILED = 'EMAIL_OTP_VERIFICATION_FAILED',
 }
 
 export enum TokenType {
@@ -55,6 +64,21 @@ export enum UserType {
   ATHLETE = 'ATHLETE',
 }
 
+export enum ProfileStatus {
+  DRAFT = 'DRAFT',
+  SUBMITTED = 'SUBMITTED',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}
+
+export enum ProfileSection {
+  PERSONAL = 'PERSONAL',
+  CONTACT = 'CONTACT',
+  EDUCATION = 'EDUCATION',
+  JOB = 'JOB',
+  EVENT = 'EVENT',
+}
+
 // Register enums with GraphQL
 registerEnumType(UserStatus, { name: 'UserStatus' });
 registerEnumType(MfaType, { name: 'MfaType' });
@@ -62,6 +86,8 @@ registerEnumType(SessionStatus, { name: 'SessionStatus' });
 registerEnumType(AuditAction, { name: 'AuditAction' });
 registerEnumType(TokenType, { name: 'TokenType' });
 registerEnumType(UserType, { name: 'UserType' });
+registerEnumType(ProfileStatus, { name: 'ProfileStatus' });
+registerEnumType(ProfileSection, { name: 'ProfileSection' });
 
 // Core Types
 @ObjectType()
@@ -104,6 +130,19 @@ export class User {
 
   @Field()
   updatedAt: Date;
+
+  // Profile Completion Fields
+  @Field()
+  isFirstLogin: boolean;
+
+  @Field(() => Int)
+  profileCompletion: number;
+
+  @Field(() => ProfileStatus)
+  profileStatus: ProfileStatus;
+
+  @Field()
+  modulesUnlocked: boolean;
 
   @Field(() => [Role], { nullable: true })
   roles?: Role[];
@@ -524,6 +563,220 @@ export interface TokenPayload {
   roles?: string[];
   permissions?: string[];
   sessionId?: string;
+}
+
+// Profile Completion Types
+@ObjectType()
+export class UserProfile {
+  @Field()
+  id: string;
+
+  @Field()
+  userId: string;
+
+  // Personal Information
+  @Field({ nullable: true })
+  personalData?: string; // JSON string
+
+  @Field()
+  personalComplete: boolean;
+
+  @Field({ nullable: true })
+  personalUpdatedAt?: Date;
+
+  @Field({ nullable: true })
+  personalUpdatedBy?: string;
+
+  // Contact Information
+  @Field({ nullable: true })
+  contactData?: string; // JSON string
+
+  @Field()
+  contactComplete: boolean;
+
+  @Field({ nullable: true })
+  contactUpdatedAt?: Date;
+
+  @Field({ nullable: true })
+  contactUpdatedBy?: string;
+
+  // Education Information
+  @Field({ nullable: true })
+  educationData?: string; // JSON string
+
+  @Field()
+  educationComplete: boolean;
+
+  @Field({ nullable: true })
+  educationUpdatedAt?: Date;
+
+  @Field({ nullable: true })
+  educationUpdatedBy?: string;
+
+  // Job Information
+  @Field({ nullable: true })
+  jobData?: string; // JSON string
+
+  @Field()
+  jobComplete: boolean;
+
+  @Field({ nullable: true })
+  jobUpdatedAt?: Date;
+
+  @Field({ nullable: true })
+  jobUpdatedBy?: string;
+
+  // Event/Sports Information
+  @Field({ nullable: true })
+  eventData?: string; // JSON string
+
+  @Field()
+  eventComplete: boolean;
+
+  @Field({ nullable: true })
+  eventUpdatedAt?: Date;
+
+  @Field({ nullable: true })
+  eventUpdatedBy?: string;
+
+  // Metadata
+  @Field(() => Int)
+  dataVersion: number;
+
+  @Field({ nullable: true })
+  submittedAt?: Date;
+
+  @Field({ nullable: true })
+  approvedAt?: Date;
+
+  @Field({ nullable: true })
+  approvedBy?: string;
+
+  @Field({ nullable: true })
+  rejectedAt?: Date;
+
+  @Field({ nullable: true })
+  rejectedBy?: string;
+
+  @Field({ nullable: true })
+  rejectionReason?: string;
+
+  @Field()
+  createdAt: Date;
+
+  @Field()
+  updatedAt: Date;
+}
+
+@ObjectType()
+export class UserProfileDraft {
+  @Field()
+  id: string;
+
+  @Field()
+  userId: string;
+
+  @Field(() => ProfileSection)
+  section: ProfileSection;
+
+  @Field()
+  draftData: string; // JSON string
+
+  @Field()
+  lastSavedAt: Date;
+}
+
+@ObjectType()
+export class ProfileCompletionStatus {
+  @Field()
+  isComplete: boolean;
+
+  @Field(() => Int)
+  completionPercentage: number;
+
+  @Field(() => ProfileStatus)
+  profileStatus: ProfileStatus;
+
+  @Field()
+  modulesUnlocked: boolean;
+
+  @Field()
+  isFirstLogin: boolean;
+
+  @Field(() => [String])
+  missingSections: string[];
+
+  @Field(() => [String])
+  completedSections: string[];
+}
+
+@ObjectType()
+export class ProfileSectionStatus {
+  @Field(() => ProfileSection)
+  section: ProfileSection;
+
+  @Field()
+  isComplete: boolean;
+
+  @Field(() => Int)
+  completionPercentage: number;
+
+  @Field(() => [String])
+  missingFields: string[];
+
+  @Field({ nullable: true })
+  lastUpdatedAt?: Date;
+
+  @Field({ nullable: true })
+  lastUpdatedBy?: string;
+}
+
+@ObjectType()
+export class ProfileDraftResponse {
+  @Field()
+  success: boolean;
+
+  @Field()
+  message: string;
+
+  @Field(() => UserProfileDraft, { nullable: true })
+  draft?: UserProfileDraft;
+
+  @Field(() => ProfileSectionStatus, { nullable: true })
+  sectionStatus?: ProfileSectionStatus;
+}
+
+@ObjectType()
+export class ProfileSubmissionResponse {
+  @Field()
+  success: boolean;
+
+  @Field()
+  message: string;
+
+  @Field(() => ProfileStatus)
+  newStatus: ProfileStatus;
+
+  @Field(() => Int)
+  completionPercentage: number;
+}
+
+@ObjectType()
+export class AdminProfileActionResponse {
+  @Field()
+  success: boolean;
+
+  @Field()
+  message: string;
+
+  @Field(() => ProfileStatus)
+  newStatus: ProfileStatus;
+
+  @Field({ nullable: true })
+  rejectionReason?: string;
+
+  @Field()
+  modulesUnlocked: boolean;
 }
 
 // JWT Claims Interface

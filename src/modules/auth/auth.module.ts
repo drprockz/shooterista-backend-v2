@@ -18,6 +18,7 @@ import { TenantContextModule } from '../../infra/tenant-context/tenant-context.m
 import { ProfileCompletionService } from './services/profile-completion.service';
 import { ConsentService } from './services/consent.service';
 import { SecurityService } from './services/security.service';
+import { CorrelationService } from '../../common/services/correlation.service';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { SecurityService } from './services/security.service';
     RateLimitService,
     AuditService,
     OTPService,
+    CorrelationService,
     // ProfileCompletionService, // Temporarily disabled due to missing Prisma methods
     // ConsentService, // Temporarily disabled due to missing Prisma methods
     // SecurityService, // Temporarily disabled due to missing Prisma methods

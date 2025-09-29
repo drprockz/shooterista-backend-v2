@@ -97,7 +97,7 @@ const schema = z.object({
 
   // Tenant Branding Configuration
   TENANT_BRANDING_ENABLED: z.string().default('false').transform(val => val === 'true'),
-  DEFAULT_LOGO_URL: z.string().optional(),
+  DEFAULT_LOGO_URL: z.string().optional().transform(val => val === '' ? undefined : val),
   DEFAULT_PRIMARY_COLOR: z.string().default('#3B82F6'),
   DEFAULT_SECONDARY_COLOR: z.string().default('#1E40AF'),
   DEFAULT_FONT_FAMILY: z.string().default('Inter, sans-serif'),
@@ -107,6 +107,21 @@ const schema = z.object({
   OTP_EXPIRY_MINUTES: z.coerce.number().default(5),
   OTP_MAX_ATTEMPTS: z.coerce.number().default(3),
   OTP_COOLDOWN_MINUTES: z.coerce.number().default(1),
+
+  // Profile Completion Configuration
+  FEATURE_REQUIRE_PROFILE_COMPLETION: z.string().default('true').transform(val => val === 'true'),
+  PROFILE_APPROVAL_REQUIRED: z.string().default('true').transform(val => val === 'true'),
+  PROFILE_MIN_COMPLETION_PERCENTAGE: z.coerce.number().default(80),
+  PROFILE_SECTION_COMPLETION_THRESHOLD: z.coerce.number().default(20), // 20% per section
+  
+  // OTP Requirements
+  OTP_EMAIL_REQUIRED_FOR_REGISTER: z.string().default('true').transform(val => val === 'true'),
+  OTP_PHONE_REQUIRED_FOR_CONTACT: z.string().default('false').transform(val => val === 'true'),
+  
+  // OTP Cooldowns and Limits
+  OTP_REQUEST_COOLDOWN_SEC: z.coerce.number().default(60),
+  OTP_MAX_ATTEMPTS_PER_EMAIL: z.coerce.number().default(5),
+  OTP_TTL_SEC: z.coerce.number().default(300), // 5 minutes
 
   // Security Configuration
   SECURITY_MAX_FAILED_LOGINS: z.coerce.number().default(5),
@@ -134,6 +149,11 @@ const schema = z.object({
   // Development Configuration
   DEBUG: z.string().optional(),
   VERBOSE_LOGGING: z.string().default('false').transform(val => val === 'true'),
+
+  // Tenant Resolution Configuration
+  TENANT_RESOLUTION_MODE: z.enum(['subdomain', 'env', 'header']).default('subdomain'),
+  TENANT_OVERRIDE_SLUG: z.string().optional(),
+  TENANT_OVERRIDE_ID: z.string().optional(),
 });
 
 export type AppConfig = z.infer<typeof schema>;
@@ -165,6 +185,35 @@ export default registerAs('app', () => {
       console.warn('⚠️  Warning: Database URLs contain placeholder values (your-server.com).');
       console.warn('   Please update .env.development with actual server URLs.');
     }
+  }
+
+  // Email configuration validation
+  if (config.EMAIL_ENABLED && config.EMAIL_PROVIDER === 'smtp') {
+    const requiredSmtpVars = ['SMTP_HOST', 'SMTP_PORT'];
+    const missingSmtpVars = requiredSmtpVars.filter(varName => !process.env[varName]);
+    
+    if (missingSmtpVars.length > 0) {
+      console.error('❌ Critical SMTP configuration missing:', missingSmtpVars.join(', '));
+      throw new Error(`SMTP configuration validation failed: Missing required variables ${missingSmtpVars.join(', ')}`);
+    }
+
+    // Validate SMTP credentials if provided
+    const smtpUser = process.env.SMTP_USERNAME || process.env.SMTP_USER;
+    const smtpPass = process.env.SMTP_PASSWORD || process.env.SMTP_PASS;
+    
+    if (smtpUser && !smtpPass) {
+      console.warn('⚠️  Warning: SMTP_USERNAME provided but SMTP_PASSWORD is missing');
+    }
+    if (smtpPass && !smtpUser) {
+      console.warn('⚠️  Warning: SMTP_PASSWORD provided but SMTP_USERNAME is missing');
+    }
+  }
+
+  // Logo URL validation and fallback
+  if (config.DEFAULT_LOGO_URL === undefined) {
+    console.warn('⚠️  Warning: DEFAULT_LOGO_URL not set. Email templates will use text fallback instead of logo.');
+  } else if (config.DEFAULT_LOGO_URL && !config.DEFAULT_LOGO_URL.startsWith('http')) {
+    console.warn('⚠️  Warning: DEFAULT_LOGO_URL should be a full URL (starting with http/https)');
   }
   
   return config;

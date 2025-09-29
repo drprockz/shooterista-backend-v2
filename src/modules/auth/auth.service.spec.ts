@@ -28,6 +28,11 @@ describe('AuthService', () => {
     createdAt: new Date(),
     updatedAt: new Date(),
     userRoles: [],
+    // Profile completion fields
+    isFirstLogin: true,
+    profileCompletion: 0,
+    profileStatus: 'DRAFT' as any,
+    modulesUnlocked: false,
   };
 
   beforeEach(async () => {

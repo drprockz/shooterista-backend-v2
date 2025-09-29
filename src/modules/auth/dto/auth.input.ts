@@ -1,6 +1,6 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsEmail, IsString, MinLength, MaxLength, IsOptional, IsBoolean, IsEnum, IsUUID, IsInt, Min, Max, IsIn } from 'class-validator';
-import { MfaType, UserStatus } from './auth.types';
+import { MfaType, UserStatus, ProfileSection, ProfileStatus } from './auth.types';
 import { 
   IsStrongPassword, 
   IsEmailFormat, 
@@ -83,6 +83,11 @@ export class CreateUserInput {
   @IsString()
   @MaxLength(500)
   userAgent?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsValidOTP({ message: 'OTP must be a 6-digit numeric code' })
+  emailVerificationToken?: string;
 }
 
 @InputType()
@@ -394,54 +399,6 @@ export class AuditLogsInput {
 }
 
 @InputType()
-export class PermissionCheckInput {
-  @Field()
-  @IsString()
-  resource: string;
-
-  @Field()
-  @IsString()
-  action: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  tenantId?: string;
-}
-
-@InputType()
-export class RoleAssignmentInput {
-  @Field()
-  @IsString()
-  userId: string;
-
-  @Field()
-  @IsString()
-  roleId: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  tenantId?: string;
-}
-
-@InputType()
-export class RoleRemovalInput {
-  @Field()
-  @IsString()
-  userId: string;
-
-  @Field()
-  @IsString()
-  roleId: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  tenantId?: string;
-}
-
-@InputType()
 export class UserUpdateInput {
   @Field({ nullable: true })
   @IsOptional()
@@ -481,7 +438,6 @@ export class SessionListInput {
   offset?: number = 0;
 }
 
-// New DTOs for enhanced authentication features
 @InputType()
 export class OTPVerificationInput {
   @Field()
@@ -506,84 +462,17 @@ export class OTPVerificationInput {
   userAgent?: string;
 }
 
+// Profile Completion Input Types
 @InputType()
-export class ProfileCompletionInput {
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(50)
-  firstName?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(50)
-  lastName?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(20)
-  phone?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(3)
-  country?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  state?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  city?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(50)
-  timezone?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  title?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(200)
-  company?: string;
-}
-
-@InputType()
-export class ConsentInput {
-  @Field()
-  @IsBoolean()
-  acceptTerms: boolean;
+export class SaveProfileDraftInput {
+  @Field(() => ProfileSection)
+  @IsEnum(ProfileSection)
+  section: ProfileSection;
 
   @Field()
-  @IsBoolean()
-  acceptPrivacy: boolean;
-
-  @Field({ nullable: true })
-  @IsOptional()
   @IsString()
-  @MaxLength(10)
-  termsVersion?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(10)
-  privacyVersion?: string;
+  @MaxLength(10000) // Reasonable limit for JSON data
+  payload: string; // JSON string containing section data
 
   @Field({ nullable: true })
   @IsOptional()
@@ -599,34 +488,73 @@ export class ConsentInput {
 }
 
 @InputType()
-export class InviteUserInput {
+export class SubmitProfileInput {
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(45)
+  ipAddress?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  userAgent?: string;
+}
+
+@InputType()
+export class AdminApproveProfileInput {
+  @Field()
+  @IsString()
+  userId: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(45)
+  ipAddress?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  userAgent?: string;
+}
+
+@InputType()
+export class AdminRejectProfileInput {
+  @Field()
+  @IsString()
+  userId: string;
+
+  @Field()
+  @IsString()
+  @MaxLength(1000)
+  reason: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(45)
+  ipAddress?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  @MaxLength(500)
+  userAgent?: string;
+}
+
+@InputType()
+export class RequestEmailOtpInput {
   @Field()
   @IsEmailFormat({ message: 'Please provide a valid email address format' })
   email: string;
 
   @Field({ nullable: true })
   @IsOptional()
-  @IsString()
-  @MaxLength(50)
-  firstName?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(50)
-  lastName?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(100)
-  role?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(500)
-  message?: string;
+  @IsValidTenantId({ message: 'Tenant ID must be a valid CUID format' })
+  tenantId?: string;
 
   @Field({ nullable: true })
   @IsOptional()
@@ -642,31 +570,19 @@ export class InviteUserInput {
 }
 
 @InputType()
-export class AcceptInviteInput {
+export class VerifyEmailOtpInput {
   @Field()
-  @IsValidToken({ message: 'Invite token must be a valid token' })
-  token: string;
+  @IsEmailFormat({ message: 'Please provide a valid email address format' })
+  email: string;
 
   @Field()
-  @IsStrongPassword({ message: 'Password does not meet security requirements' })
-  password: string;
+  @IsValidOTP({ message: 'OTP must be a 6-digit numeric code' })
+  code: string;
 
   @Field({ nullable: true })
   @IsOptional()
-  @IsString()
-  @MaxLength(50)
-  firstName?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsString()
-  @MaxLength(50)
-  lastName?: string;
-
-  @Field({ nullable: true })
-  @IsOptional()
-  @IsValidDeviceInfo({ message: 'Device information contains invalid content' })
-  deviceInfo?: string;
+  @IsValidTenantId({ message: 'Tenant ID must be a valid CUID format' })
+  tenantId?: string;
 
   @Field({ nullable: true })
   @IsOptional()

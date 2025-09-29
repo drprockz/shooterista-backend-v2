@@ -51,27 +51,87 @@ export class GlobalExceptionFilter implements ExceptionFilter, GqlExceptionFilte
   private catchGraphQLException(exception: any, host: ArgumentsHost) {
     const gqlHost = GqlArgumentsHost.create(host);
     const info = gqlHost.getInfo();
+    const context = gqlHost.getContext();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Internal server error';
     let code = 'INTERNAL_ERROR';
 
+    // Extract request ID from context
+    const requestId = context?.requestContext?.requestId || context?.req?.headers?.['x-request-id'] || 'unknown';
+
+    // Special handling for .url access errors
+    if (exception instanceof TypeError && exception.message?.includes("Cannot read properties of undefined (reading 'url')")) {
+      this.logger.error({
+        event: 'url_access_error',
+        requestId,
+        operation: info.fieldName,
+        path: info.path,
+        error: {
+          name: exception.name,
+          message: exception.message,
+          stack_present: !!exception.stack,
+        },
+        timestamp: new Date().toISOString()
+      });
+      
+      message = 'Template processing error - logo configuration issue';
+      code = 'TEMPLATE_ERROR';
+    }
+
     if (exception instanceof HttpException) {
       status = exception.getStatus();
       const response = exception.getResponse();
-      message = typeof response === 'string' ? response : (response as any).message;
+      
+      if (typeof response === 'object' && response !== null) {
+        const responseObj = response as any;
+        message = responseObj.message || 'Validation failed';
+        
+        // Handle detailed validation errors
+        if (responseObj.field && responseObj.constraints) {
+          return new GraphQLError(message, {
+            extensions: {
+              code: responseObj.code || this.getGraphQLErrorCode(status),
+              field: responseObj.field,
+              constraints: responseObj.constraints,
+              status,
+              requestId,
+              timestamp: new Date().toISOString(),
+              path: info.path,
+              ...(process.env.NODE_ENV === 'development' && { 
+                validationErrors: responseObj.validationErrors,
+                exception: {
+                  stacktrace: exception.stack?.split('\n'),
+                }
+              }),
+            },
+          });
+        }
+      } else {
+        message = typeof response === 'string' ? response : 'Validation failed';
+      }
+      
       code = this.getGraphQLErrorCode(status);
     }
 
-    this.logger.error(
-      `GraphQL Error in ${info.fieldName}: ${message}`,
-      exception.stack,
-    );
+    this.logger.error({
+      event: 'graphql_error',
+      requestId,
+      operation: info.fieldName,
+      path: info.path,
+      error: {
+        name: exception.name,
+        message: exception.message,
+        stack_present: !!exception.stack,
+      },
+      timestamp: new Date().toISOString()
+    });
 
     return new GraphQLError(message, {
       extensions: {
         code,
         status,
+        requestId,
         timestamp: new Date().toISOString(),
         path: info.path,
         ...(process.env.NODE_ENV === 'development' && { 

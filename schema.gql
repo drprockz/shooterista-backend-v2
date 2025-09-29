@@ -2,6 +2,12 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input AdminApproveProfileInput {
+  ipAddress: String
+  userAgent: String
+  userId: String!
+}
+
 input AdminLoginInput {
   deviceInfo: String
   email: String!
@@ -11,9 +17,27 @@ input AdminLoginInput {
   userAgent: String
 }
 
+type AdminProfileActionResponse {
+  message: String!
+  modulesUnlocked: Boolean!
+  newStatus: ProfileStatus!
+  rejectionReason: String
+  success: Boolean!
+}
+
+input AdminRejectProfileInput {
+  ipAddress: String
+  reason: String!
+  userAgent: String
+  userId: String!
+}
+
 enum AuditAction {
   ACCOUNT_LOCKED
   ACCOUNT_UNLOCKED
+  EMAIL_OTP_REQUEST
+  EMAIL_OTP_VERIFICATION_FAILED
+  EMAIL_OTP_VERIFIED
   EMAIL_VERIFICATION_COMPLETE
   EMAIL_VERIFICATION_REQUEST
   LOGIN
@@ -28,6 +52,10 @@ enum AuditAction {
   PASSWORD_RESET_REQUEST
   PERMISSION_GRANTED
   PERMISSION_REVOKED
+  PROFILE_APPROVED
+  PROFILE_DRAFT_SAVED
+  PROFILE_REJECTED
+  PROFILE_SUBMITTED
   ROLE_ASSIGNED
   ROLE_REMOVED
   SESSION_CREATED
@@ -100,6 +128,7 @@ input CreateUserInput {
   acceptTerms: Boolean
   deviceInfo: String
   email: String!
+  emailVerificationToken: String
   firstName: String
   ipAddress: String
   lastName: String
@@ -185,6 +214,8 @@ input MfaVerificationInput {
 }
 
 type Mutation {
+  adminApproveProfile(input: AdminApproveProfileInput!): AdminProfileActionResponse!
+  adminRejectProfile(input: AdminRejectProfileInput!): AdminProfileActionResponse!
   changePassword(input: ChangePasswordInput!): Boolean!
   createTenant(input: CreateTenantInput!): Tenant!
   disableMfa(input: MfaDisableInput!): Boolean!
@@ -196,18 +227,22 @@ type Mutation {
   logoutAll: Boolean!
   refreshToken(input: RefreshTokenInput!): TokenRefreshPayload!
   register(input: CreateUserInput!): AuthPayload!
+  requestEmailOtp(input: RequestEmailOtpInput!): OTPResponse!
   requestPasswordReset(input: PasswordResetRequestInput!): PasswordResetResponse!
   resendEmailVerification(input: ResendEmailVerificationInput!): EmailVerificationResponse!
   resendOTP(email: String!): OTPResponse!
   resetPassword(input: PasswordResetInput!): Boolean!
   revokeSession(input: SessionRevokeInput!): Boolean!
+  saveProfileDraft(input: SaveProfileDraftInput!): ProfileDraftResponse!
   sendTestEmail(to: String!): String!
   setupMfa(input: MfaSetupInput!): MfaSetup!
+  submitProfile(input: SubmitProfileInput!): ProfileSubmissionResponse!
   switchTenant(input: TenantSwitchInput!): TenantSwitchResponse!
   updateTenant(id: String!, input: UpdateTenantInput!): Tenant!
   updateUser(input: UserUpdateInput!): User!
   updateUserProfile(data: String!): String!
   verifyEmail(input: EmailVerificationInput!): Boolean!
+  verifyEmailOtp(input: VerifyEmailOtpInput!): OTPResponse!
   verifyEmailWithOTP(input: OTPVerificationInput!): Boolean!
   verifyMfa(input: MfaVerificationInput!): AuthPayload!
   verifyOTP(input: OTPVerificationInput!): OTPResponse!
@@ -267,8 +302,59 @@ enum PlanType {
   PREMIUM
 }
 
+type ProfileCompletionStatus {
+  completedSections: [String!]!
+  completionPercentage: Int!
+  isComplete: Boolean!
+  isFirstLogin: Boolean!
+  missingSections: [String!]!
+  modulesUnlocked: Boolean!
+  profileStatus: ProfileStatus!
+}
+
+type ProfileDraftResponse {
+  draft: UserProfileDraft
+  message: String!
+  sectionStatus: ProfileSectionStatus
+  success: Boolean!
+}
+
+enum ProfileSection {
+  CONTACT
+  EDUCATION
+  EVENT
+  JOB
+  PERSONAL
+}
+
+type ProfileSectionStatus {
+  completionPercentage: Int!
+  isComplete: Boolean!
+  lastUpdatedAt: DateTime
+  lastUpdatedBy: String
+  missingFields: [String!]!
+  section: ProfileSection!
+}
+
+enum ProfileStatus {
+  APPROVED
+  DRAFT
+  REJECTED
+  SUBMITTED
+}
+
+type ProfileSubmissionResponse {
+  completionPercentage: Int!
+  message: String!
+  newStatus: ProfileStatus!
+  success: Boolean!
+}
+
 type Query {
   getAuditLogs(input: AuditLogsInput!): AuditLogResponse!
+  getMyProfile: UserProfile
+  getMyProfileDrafts: [UserProfileDraft!]!
+  getProfileCompletion: ProfileCompletionStatus!
   getSessionInfo(sessionId: String!): String!
   getSessions(input: SessionListInput!): SessionListResponse!
   getTenant(id: String!): Tenant!
@@ -294,6 +380,13 @@ input RefreshTokenInput {
   userAgent: String
 }
 
+input RequestEmailOtpInput {
+  email: String!
+  ipAddress: String
+  tenantId: String
+  userAgent: String
+}
+
 input ResendEmailVerificationInput {
   email: String!
   ipAddress: String
@@ -310,6 +403,13 @@ type Role {
   permissions: [Permission!]
   tenantId: String
   updatedAt: DateTime!
+}
+
+input SaveProfileDraftInput {
+  ipAddress: String
+  payload: String!
+  section: ProfileSection!
+  userAgent: String
 }
 
 type Session {
@@ -345,6 +445,11 @@ enum SessionStatus {
   ACTIVE
   EXPIRED
   REVOKED
+}
+
+input SubmitProfileInput {
+  ipAddress: String
+  userAgent: String
 }
 
 type Tenant {
@@ -442,16 +547,62 @@ type User {
   firstName: String
   id: String!
   isEmailVerified: Boolean!
+  isFirstLogin: Boolean!
   isMfaEnabled: Boolean!
   lastLoginAt: DateTime
   lastName: String
+  modulesUnlocked: Boolean!
   passwordChangedAt: DateTime
   permissions: [Permission!]
+  profileCompletion: Int!
+  profileStatus: ProfileStatus!
   roles: [Role!]
   status: UserStatus!
   tenantId: String
   updatedAt: DateTime!
   userType: UserType!
+}
+
+type UserProfile {
+  approvedAt: DateTime
+  approvedBy: String
+  contactComplete: Boolean!
+  contactData: String
+  contactUpdatedAt: DateTime
+  contactUpdatedBy: String
+  createdAt: DateTime!
+  dataVersion: Int!
+  educationComplete: Boolean!
+  educationData: String
+  educationUpdatedAt: DateTime
+  educationUpdatedBy: String
+  eventComplete: Boolean!
+  eventData: String
+  eventUpdatedAt: DateTime
+  eventUpdatedBy: String
+  id: String!
+  jobComplete: Boolean!
+  jobData: String
+  jobUpdatedAt: DateTime
+  jobUpdatedBy: String
+  personalComplete: Boolean!
+  personalData: String
+  personalUpdatedAt: DateTime
+  personalUpdatedBy: String
+  rejectedAt: DateTime
+  rejectedBy: String
+  rejectionReason: String
+  submittedAt: DateTime
+  updatedAt: DateTime!
+  userId: String!
+}
+
+type UserProfileDraft {
+  draftData: String!
+  id: String!
+  lastSavedAt: DateTime!
+  section: ProfileSection!
+  userId: String!
 }
 
 enum UserStatus {
@@ -471,4 +622,12 @@ input UserUpdateInput {
   firstName: String
   lastName: String
   status: UserStatus
+}
+
+input VerifyEmailOtpInput {
+  code: String!
+  email: String!
+  ipAddress: String
+  tenantId: String
+  userAgent: String
 }

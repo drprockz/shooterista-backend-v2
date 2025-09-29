@@ -2,6 +2,7 @@ import { Resolver, Query, Mutation, Args, Context } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@/common/guards/auth.guard';
+import { CorrelationService } from '@/common/services/correlation.service';
 import { 
   CreateUserInput, 
   LoginInput, 
@@ -21,8 +22,12 @@ import {
   UserUpdateInput,
   SessionListInput,
   OTPVerificationInput,
-  ProfileCompletionInput,
-  ConsentInput,
+  SaveProfileDraftInput,
+  SubmitProfileInput,
+  AdminApproveProfileInput,
+  AdminRejectProfileInput,
+  RequestEmailOtpInput,
+  VerifyEmailOtpInput,
 } from './dto/auth.input';
 import { 
   AuthPayload, 
@@ -34,15 +39,22 @@ import {
   SessionListResponse,
   AuditLogResponse,
   OTPResponse,
-  ProfileCompletionResponse,
-  ConsentResponse,
+  ProfileCompletionStatus,
+  UserProfile,
+  UserProfileDraft,
+  ProfileDraftResponse,
+  ProfileSubmissionResponse,
+  AdminProfileActionResponse,
   HealthMetrics,
   SecurityStatus,
 } from './dto/auth.types';
 
 @Resolver()
 export class AuthResolver {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly correlationService: CorrelationService,
+  ) {}
 
   @Query(() => String)
   async health(): Promise<string> {
@@ -61,7 +73,69 @@ export class AuthResolver {
     @Context() context: any,
   ): Promise<AuthPayload> {
     const req = context.req;
-    return this.authService.register(input, req.ip, req.headers['user-agent']);
+    const requestContext = context.requestContext;
+    
+    console.log('🔍 [DEBUG] Register resolver called with requestId:', requestContext?.requestId);
+    console.log('🔍 [DEBUG] Input email:', input.email);
+    
+    // Create child logger with correlation context
+    const logger = this.correlationService.createChildLogger(
+      new (require('@nestjs/common').Logger)(AuthResolver.name),
+      requestContext
+    );
+
+    // Log entry with payload keys only (no values)
+    const payloadKeys = Object.keys(input).filter(key => 
+      ['email', 'firstName', 'lastName', 'acceptTerms', 'acceptPrivacy', 'emailVerificationToken', 'tenantId'].includes(key)
+    );
+    
+    console.log('🔍 [DEBUG] About to log register.start');
+    logger.log({
+      event: 'register.start',
+      operationName: 'register',
+      tenantId: input.tenantId,
+      email: input.email,
+      payload_keys: payloadKeys,
+    });
+
+    try {
+      console.log('🔍 [DEBUG] About to call authService.register');
+      const result = await this.authService.register(input, req.ip, req.headers['user-agent'], requestContext);
+      
+      console.log('🔍 [DEBUG] Register successful, logging success');
+      logger.log({
+        event: 'register.success',
+        operationName: 'register',
+        tenantId: input.tenantId,
+        email: input.email,
+        userId: result.user?.id,
+        elapsed_ms: Date.now() - requestContext.startTime,
+        initial_flags: {
+          isFirstLogin: result.user?.isFirstLogin,
+          profileStatus: result.user?.profileStatus,
+          profileCompletion: result.user?.profileCompletion,
+          modulesUnlocked: result.user?.modulesUnlocked,
+        },
+      });
+
+      return result;
+    } catch (error) {
+      console.log('🔍 [DEBUG] Register error caught:', error.message);
+      logger.error({
+        event: 'register.error',
+        operationName: 'register',
+        tenantId: input.tenantId,
+        email: input.email,
+        elapsed_ms: Date.now() - requestContext.startTime,
+        error: {
+          name: error instanceof Error ? error.name : 'UnknownError',
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack_present: error instanceof Error ? !!error.stack : false,
+        },
+      });
+      
+      throw error;
+    }
   }
 
   @Mutation(() => AuthPayload)
@@ -143,6 +217,25 @@ export class AuthResolver {
   @UseGuards(AuthGuard)
   async me(@Context('req') req: any): Promise<User> {
     return this.authService.me(req.user.id, req.user.tenantId);
+  }
+
+  // Profile Completion Queries
+  @Query(() => ProfileCompletionStatus)
+  @UseGuards(AuthGuard)
+  async getProfileCompletion(@Context('req') req: any): Promise<ProfileCompletionStatus> {
+    return this.authService.getProfileCompletion(req.user.id);
+  }
+
+  @Query(() => UserProfile, { nullable: true })
+  @UseGuards(AuthGuard)
+  async getMyProfile(@Context('req') req: any): Promise<UserProfile | null> {
+    return this.authService.getUserProfile(req.user.id);
+  }
+
+  @Query(() => [UserProfileDraft])
+  @UseGuards(AuthGuard)
+  async getMyProfileDrafts(@Context('req') req: any): Promise<UserProfileDraft[]> {
+    return this.authService.getUserProfileDrafts(req.user.id);
   }
 
   // Password Management
@@ -278,30 +371,60 @@ export class AuthResolver {
     return this.authService.resendOTP(email, req.ip, req.headers['user-agent'], tenantId);
   }
 
-  // Profile Completion - temporarily disabled
-  // @Query(() => ProfileCompletionResponse)
-  // @UseGuards(AuthGuard)
-  // async checkProfileCompletion(@Context('req') req: any): Promise<ProfileCompletionResponse> {
-  //   return this.authService.checkProfileCompletion(req.user.id);
-  // }
+  // Email OTP for Registration
+  @Mutation(() => OTPResponse)
+  async requestEmailOtp(
+    @Args('input') input: RequestEmailOtpInput,
+    @Context('req') req: any,
+  ): Promise<OTPResponse> {
+    return this.authService.requestEmailOtp(input, req.ip, req.headers['user-agent']);
+  }
 
-  // @Mutation(() => ProfileCompletionResponse)
-  // @UseGuards(AuthGuard)
-  // async updateProfile(
-  //   @Args('input') input: ProfileCompletionInput,
-  //   @Context('req') req: any,
-  // ): Promise<ProfileCompletionResponse> {
-  //   return this.authService.updateProfile(req.user.id, input);
-  // }
+  @Mutation(() => OTPResponse)
+  async verifyEmailOtp(
+    @Args('input') input: VerifyEmailOtpInput,
+    @Context('req') req: any,
+  ): Promise<OTPResponse> {
+    return this.authService.verifyEmailOtp(input, req.ip, req.headers['user-agent']);
+  }
 
-  // @Query(() => Boolean)
-  // @UseGuards(AuthGuard)
-  // async canAccessModule(
-  //   @Args('moduleName') moduleName: string,
-  //   @Context('req') req: any,
-  // ): Promise<boolean> {
-  //   return this.authService.canAccessModule(req.user.id, moduleName);
-  // }
+  // Profile Completion Mutations
+  @Mutation(() => ProfileDraftResponse)
+  @UseGuards(AuthGuard)
+  async saveProfileDraft(
+    @Args('input') input: SaveProfileDraftInput,
+    @Context('req') req: any,
+  ): Promise<ProfileDraftResponse> {
+    return this.authService.saveProfileDraft(req.user.id, input, req.ip, req.headers['user-agent']);
+  }
+
+  @Mutation(() => ProfileSubmissionResponse)
+  @UseGuards(AuthGuard)
+  async submitProfile(
+    @Args('input') input: SubmitProfileInput,
+    @Context('req') req: any,
+  ): Promise<ProfileSubmissionResponse> {
+    return this.authService.submitProfile(req.user.id, input, req.ip, req.headers['user-agent']);
+  }
+
+  // Admin Profile Management
+  @Mutation(() => AdminProfileActionResponse)
+  @UseGuards(AuthGuard)
+  async adminApproveProfile(
+    @Args('input') input: AdminApproveProfileInput,
+    @Context('req') req: any,
+  ): Promise<AdminProfileActionResponse> {
+    return this.authService.adminApproveProfile(req.user.id, input, req.ip, req.headers['user-agent']);
+  }
+
+  @Mutation(() => AdminProfileActionResponse)
+  @UseGuards(AuthGuard)
+  async adminRejectProfile(
+    @Args('input') input: AdminRejectProfileInput,
+    @Context('req') req: any,
+  ): Promise<AdminProfileActionResponse> {
+    return this.authService.adminRejectProfile(req.user.id, input, req.ip, req.headers['user-agent']);
+  }
 
   // Consent Management - temporarily disabled
   // @Query(() => Boolean)

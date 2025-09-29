@@ -24,6 +24,11 @@ export class RateLimitService {
         windowMs: parseInt(this.configService.get<string>('app.RATE_LIMIT_LOGIN_WINDOW', '900000')), // 15 minutes
         blockDurationMs: parseInt(this.configService.get<string>('app.RATE_LIMIT_LOGIN_BLOCK', '3600000')), // 1 hour
       },
+      registration: {
+        maxAttempts: parseInt(this.configService.get<string>('app.RATE_LIMIT_LOGIN_MAX', '5')), // Use same as login for now
+        windowMs: parseInt(this.configService.get<string>('app.RATE_LIMIT_LOGIN_WINDOW', '900000')), // 15 minutes
+        blockDurationMs: parseInt(this.configService.get<string>('app.RATE_LIMIT_LOGIN_BLOCK', '3600000')), // 1 hour
+      },
       passwordReset: {
         maxAttempts: parseInt(this.configService.get<string>('app.RATE_LIMIT_PASSWORD_RESET_MAX', '3')),
         windowMs: parseInt(this.configService.get<string>('app.RATE_LIMIT_PASSWORD_RESET_WINDOW', '3600000')), // 1 hour
